@@ -5,6 +5,7 @@ const cors = require("cors");
 const userRoutes = require("./routes/userRoutes");
 const policyRoutes = require("./routes/policyRoutes");
 const projectRoutes = require("./routes/projectRoutes");
+const teamRoutes = require("./routes/teamRoutes");
 
 dotenv.config();
 
@@ -24,7 +25,11 @@ mongoose
 // Routes
 app.use("/api/users", userRoutes);
 app.use("/api/policies", policyRoutes);
-app.use("/api", projectRoutes);
+app.use("/api/projects", projectRoutes);
+app.use("/api/teams", teamRoutes);
+
+//Define a Simple route
+app.get("/", (req, res) => res.send("Hello World!"));
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
