@@ -1,4 +1,4 @@
-const Team = require("../models/Team");
+const Team = require("../models/Teams");
 const Project = require("../models/Project");
 const User = require("../models/User");
 
