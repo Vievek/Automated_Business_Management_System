@@ -9,7 +9,7 @@ const teamRoutes = require("./routes/teamRoutes");
 const taskRoutes = require("./routes/taskRoutes");
 const noteRoutes = require("./routes/noteRoutes");
 const researchRoutes = require("./routes/researchRoutes");
-
+const issueRoutes = require("./routes/issueRoutes");
 dotenv.config();
 
 const app = express();
@@ -33,6 +33,7 @@ app.use("/api/teams", teamRoutes);
 app.use("/api/tasks", taskRoutes);
 app.use("/api/notes", noteRoutes);
 app.use("/api/researches", researchRoutes);
+app.use("/api/issues", issueRoutes);
 
 //Define a Simple route
 app.get("/", (req, res) => res.send("Hello World!"));
