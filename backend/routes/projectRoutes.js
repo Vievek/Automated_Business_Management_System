@@ -4,30 +4,36 @@ const projectController = require("../controllers/projectController");
 const authMiddleware = require("../middleware/auth");
 const abacMiddleware = require("../middleware/abac");
 
-// Project Routes
+// Create a standalone project
 router.post(
-  "/teams/:teamId/projects",
+  "/projects",
   authMiddleware,
   abacMiddleware("/projects", "POST"),
-  projectController.createProjectForTeam
+  projectController.createProject
 );
+
+// Get all projects (standalone and team-associated)
 router.get(
-  "/teams/:teamId/projects",
+  "/projects",
   authMiddleware,
   abacMiddleware("/projects", "GET"),
-  projectController.getAllProjectsForTeam
+  projectController.getAllProjects
 );
+
+// Update a project
 router.put(
-  "/teams/:teamId/projects/:projectId",
+  "/projects/:projectId",
   authMiddleware,
   abacMiddleware("/projects", "PUT"),
-  projectController.updateProjectForTeam
+  projectController.updateProject
 );
+
+// Delete a project
 router.delete(
-  "/teams/:teamId/projects/:projectId",
+  "/projects/:projectId",
   authMiddleware,
   abacMiddleware("/projects", "DELETE"),
-  projectController.deleteProjectForTeam
+  projectController.deleteProject
 );
 
 module.exports = router;

@@ -1,4 +1,5 @@
-const Team = require("../models/Teams");
+const Team = require("../models/Team");
+const Project = require("../models/Project");
 const User = require("../models/User");
 
 // Helper function to add a user to a team and update the user's teams array
@@ -35,12 +36,31 @@ const removeUserFromTeam = async (teamId, userId) => {
   return { team, user };
 };
 
-// Create a new team
+// Create a new team with a reference to an existing project
 exports.createTeam = async (req, res) => {
   try {
-    const { name, members } = req.body;
-    const newTeam = new Team({ name, members });
+    const { name, members, projectId } = req.body;
+
+    // Check if the project exists
+    const project = await Project.findById(projectId);
+    if (!project) {
+      return res.status(404).json({ message: "Project not found" });
+    }
+
+    // Check if a team already exists for this project
+    const existingTeam = await Team.findOne({ project: projectId });
+    if (existingTeam) {
+      return res
+        .status(400)
+        .json({ message: "A team already exists for this project" });
+    }
+
+    const newTeam = new Team({ name, members, project: projectId });
     await newTeam.save();
+
+    // Update the project with the team reference
+    project.team = newTeam._id;
+    await project.save();
 
     // Add the team to each user's teams array
     if (members && members.length > 0) {
@@ -63,10 +83,9 @@ exports.createTeam = async (req, res) => {
 // Get all teams
 exports.getAllTeams = async (req, res) => {
   try {
-    const teams = await Team.find().populate(
-      "members",
-      "username role department"
-    );
+    const teams = await Team.find()
+      .populate("members", "username role department")
+      .populate("project");
     res.status(200).json(teams);
   } catch (error) {
     res
@@ -78,10 +97,9 @@ exports.getAllTeams = async (req, res) => {
 // Get a single team by ID
 exports.getTeamById = async (req, res) => {
   try {
-    const team = await Team.findById(req.params.id).populate(
-      "members",
-      "username role department"
-    );
+    const team = await Team.findById(req.params.id)
+      .populate("members", "username role department")
+      .populate("project");
     if (!team) {
       return res.status(404).json({ message: "Team not found" });
     }
@@ -167,6 +185,9 @@ exports.deleteTeam = async (req, res) => {
 
     // Delete the team
     await Team.findByIdAndDelete(teamId);
+
+    // Remove the team reference from the project
+    await Project.findByIdAndUpdate(team.project, { $unset: { team: 1 } });
 
     res.status(200).json({ message: "Team deleted successfully", team });
   } catch (error) {

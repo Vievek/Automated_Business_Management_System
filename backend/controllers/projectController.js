@@ -1,11 +1,10 @@
 const Project = require("../models/Project");
 
-// Create Project for a Team
-exports.createProjectForTeam = async (req, res) => {
-  const { name, description } = req.body;
-  const { teamId } = req.params;
+// Create a standalone project
+exports.createProject = async (req, res) => {
+  const { name, description, team } = req.body; // `team` is optional
   try {
-    const project = new Project({ name, description, team: teamId });
+    const project = new Project({ name, description, team });
     await project.save();
     res.status(201).json(project);
   } catch (err) {
@@ -13,25 +12,24 @@ exports.createProjectForTeam = async (req, res) => {
   }
 };
 
-// Read All Projects for a Team
-exports.getAllProjectsForTeam = async (req, res) => {
-  const { teamId } = req.params;
+// Get all projects (standalone and team-associated)
+exports.getAllProjects = async (req, res) => {
   try {
-    const projects = await Project.find({ team: teamId }).populate("team");
+    const projects = await Project.find().populate("team");
     res.json(projects);
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
 };
 
-// Update Project for a Team
-exports.updateProjectForTeam = async (req, res) => {
-  const { teamId, projectId } = req.params;
-  const { name, description } = req.body;
+// Update a project
+exports.updateProject = async (req, res) => {
+  const { projectId } = req.params;
+  const { name, description, team } = req.body; // `team` is optional
   try {
-    const project = await Project.findOneAndUpdate(
-      { _id: projectId, team: teamId },
-      { name, description },
+    const project = await Project.findByIdAndUpdate(
+      projectId,
+      { name, description, team },
       { new: true }
     );
     if (!project) {
@@ -43,14 +41,11 @@ exports.updateProjectForTeam = async (req, res) => {
   }
 };
 
-// Delete Project for a Team
-exports.deleteProjectForTeam = async (req, res) => {
-  const { teamId, projectId } = req.params;
+// Delete a project
+exports.deleteProject = async (req, res) => {
+  const { projectId } = req.params;
   try {
-    const project = await Project.findOneAndDelete({
-      _id: projectId,
-      team: teamId,
-    });
+    const project = await Project.findByIdAndDelete(projectId);
     if (!project) {
       return res.status(404).json({ message: "Project not found" });
     }
