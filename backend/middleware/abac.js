@@ -24,8 +24,15 @@ const evaluatePolicy = (user, resource, action, policy, requestTeamId) => {
     };
   }
 
-  const { role, department, teams = [], id } = user; // Include user ID, default teams to empty array
-  const time = new Date().getHours();
+  const { role, teams = [], id } = user; // Include user ID, default teams to empty array
+
+  // Define privileged roles
+  const privilegedRoles = ["ceo", "cfo", "coo", "pm", "hr"];
+
+  // If the user has a privileged role, grant access immediately
+  if (privilegedRoles.includes(role)) {
+    return { access: true };
+  }
 
   // Role check
   if (policy.conditions.role && policy.conditions.role !== role) {
@@ -35,33 +42,6 @@ const evaluatePolicy = (user, resource, action, policy, requestTeamId) => {
       details: {
         expectedRole: policy.conditions.role,
         actualRole: role,
-      },
-    };
-  }
-
-  // Department check
-  if (
-    policy.conditions.department &&
-    policy.conditions.department !== department
-  ) {
-    return {
-      access: false,
-      reason: "Department does not match.",
-      details: {
-        expectedDepartment: policy.conditions.department,
-        actualDepartment: department, // Ensure actualDepartment is included
-      },
-    };
-  }
-
-  // Time check
-  if (policy.conditions.time && !(time >= 9 && time <= 17)) {
-    return {
-      access: false,
-      reason: "Access is only allowed between 9 AM and 5 PM.",
-      details: {
-        currentTime: `${time}:00`,
-        allowedTime: "9AM-5PM",
       },
     };
   }
@@ -88,7 +68,7 @@ const evaluatePolicy = (user, resource, action, policy, requestTeamId) => {
       reason: "User is not in the allowed users list.",
       details: {
         allowedUsers: policy.conditions.allowedUsers,
-        userId: _id,
+        userId: id,
       },
     };
   }

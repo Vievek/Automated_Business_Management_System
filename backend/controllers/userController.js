@@ -71,9 +71,12 @@ exports.login = async (req, res) => {
 exports.getAllUsers = async (req, res) => {
   try {
     const users = await User.find()
-      .populate("projects") // Populate the projects array
-      .populate("workingProject") // Populate the workingProject reference
-      .populate("teams");
+      .populate("projects")
+      .populate("workingProject")
+      .populate("teams")
+      .populate("tasks")
+      .populate("researches")
+      .populate("notes");
     res.json(users);
   } catch (err) {
     res.status(400).json({ error: err.message });
@@ -87,7 +90,10 @@ exports.getUserProfile = async (req, res) => {
     const user = await User.findById(userId)
       .populate("projects")
       .populate("teams")
-      .populate("workingProject");
+      .populate("workingProject")
+      .populate("tasks")
+      .populate("researches")
+      .populate("notes");
 
     if (!user) {
       return res.status(404).json({ error: "User not found" });
@@ -137,6 +143,9 @@ exports.updateUser = async (req, res) => {
       "role",
       "projects",
       "workingProject",
+      "tasks",
+      "researches",
+      "notes",
     ];
 
     // Filter out disallowed fields

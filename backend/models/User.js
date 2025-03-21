@@ -21,6 +21,9 @@ const userSchema = new mongoose.Schema({
   workingProject: { type: mongoose.Schema.Types.ObjectId, ref: "Project" }, // Reference to the current working project
   role: { type: String, required: true }, // Role field without enum restriction
   teams: [{ type: mongoose.Schema.Types.ObjectId, ref: "Team" }],
+  tasks: [{ type: mongoose.Schema.Types.ObjectId, ref: "Task" }], // One-to-many relationship with Task
+  researches: [{ type: mongoose.Schema.Types.ObjectId, ref: "Research" }], // Many-to-many relationship with Research
+  notes: [{ type: mongoose.Schema.Types.ObjectId, ref: "Note" }], // Many-to-many relationship with Note
 });
 
 // Hash password before saving
