@@ -4,12 +4,22 @@ const bcrypt = require("bcryptjs");
 const userSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true },
   password: { type: String, required: true },
-  role: {
+  firstname: { type: String, required: true },
+  lastname: { type: String, required: true },
+  phone: { type: String, required: true },
+  email: { type: String, required: true, unique: true },
+  profilePic: { type: String }, // URL or file path to the profile picture
+  salary: { type: Number, required: true },
+  projects: [{ type: mongoose.Schema.Types.ObjectId, ref: "Project" }], // Array of project references
+  yearsOfExperience: { type: Number, required: true },
+  nicNo: { type: String, required: true, unique: true }, // National Identity Card Number
+  currentStatus: {
     type: String,
-    enum: ["admin", "manager", "employee"],
-    default: "employee",
+    enum: ["working on project", "on bench", "chief"],
+    default: "on bench",
   },
-  department: { type: String, required: true },
+  workingProject: { type: mongoose.Schema.Types.ObjectId, ref: "Project" }, // Reference to the current working project
+  role: { type: String, required: true }, // Role field without enum restriction
   teams: [{ type: mongoose.Schema.Types.ObjectId, ref: "Team" }],
 });
 
