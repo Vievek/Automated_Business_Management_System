@@ -1,4 +1,5 @@
 const Issue = require("../models/Issue");
+const User = require("../models/User");
 
 // Create a new issue
 exports.createIssue = async (req, res) => {
@@ -99,10 +100,23 @@ exports.deleteIssue = async (req, res) => {
   }
 };
 
-// Get issues by raisedTo
+// Get issues by raisedTo with optional filters for notedStatus and resolvedStatus
 exports.getIssuesByRaisedTo = async (req, res) => {
   try {
-    const issues = await Issue.find({ raisedTo: req.params.id }).populate(
+    const { notedStatus, resolvedStatus } = req.query;
+    const filter = { raisedTo: req.params.id };
+
+    // Add notedStatus to filter if provided
+    if (notedStatus !== undefined) {
+      filter.notedStatus = notedStatus === "true";
+    }
+
+    // Add resolvedStatus to filter if provided
+    if (resolvedStatus !== undefined) {
+      filter.resolvedStatus = resolvedStatus === "true";
+    }
+
+    const issues = await Issue.find(filter).populate(
       "raisedBy raisedTo",
       "username email"
     ); // Populate user details
@@ -114,10 +128,23 @@ exports.getIssuesByRaisedTo = async (req, res) => {
   }
 };
 
-// Get issues by raisedBy
+// Get issues by raisedBy with optional filters for notedStatus and resolvedStatus
 exports.getIssuesByRaisedBy = async (req, res) => {
   try {
-    const issues = await Issue.find({ raisedBy: req.params.id }).populate(
+    const { notedStatus, resolvedStatus } = req.query;
+    const filter = { raisedBy: req.params.id };
+
+    // Add notedStatus to filter if provided
+    if (notedStatus !== undefined) {
+      filter.notedStatus = notedStatus === "true";
+    }
+
+    // Add resolvedStatus to filter if provided
+    if (resolvedStatus !== undefined) {
+      filter.resolvedStatus = resolvedStatus === "true";
+    }
+
+    const issues = await Issue.find(filter).populate(
       "raisedBy raisedTo",
       "username email"
     ); // Populate user details
@@ -126,5 +153,40 @@ exports.getIssuesByRaisedBy = async (req, res) => {
     res
       .status(500)
       .json({ message: "Error fetching issues", error: error.message });
+  }
+};
+
+// Search Issues by any field (non-case-sensitive)
+exports.searchIssues = async (req, res) => {
+  const { query } = req.query;
+
+  try {
+    // Find users whose username, firstname, or lastname matches the query
+    const users = await User.find({
+      $or: [
+        { username: { $regex: query, $options: "i" } },
+        { firstname: { $regex: query, $options: "i" } },
+        { lastname: { $regex: query, $options: "i" } },
+      ],
+    });
+
+    // Extract user IDs from the search results
+    const userIds = users.map((user) => user._id);
+
+    // Find issues where issueName, details, raisedBy, or raisedTo matches the query
+    const issues = await Issue.find({
+      $or: [
+        { issueName: { $regex: query, $options: "i" } }, // Search by issueName
+        { details: { $regex: query, $options: "i" } }, // Search by details
+        { raisedBy: { $in: userIds } }, // Search by raisedBy (user ID)
+        { raisedTo: { $in: userIds } }, // Search by raisedTo (user ID)
+      ],
+    })
+      .populate("raisedBy", "username firstname lastname") // Populate raisedBy with user details
+      .populate("raisedTo", "username firstname lastname"); // Populate raisedTo with user details
+
+    res.json(issues);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
   }
 };

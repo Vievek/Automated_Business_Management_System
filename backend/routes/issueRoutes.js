@@ -60,4 +60,12 @@ router.delete(
   issueController.deleteIssue
 );
 
+// Search issues
+router.get(
+  "/issues/search",
+  authMiddleware,
+  abacMiddleware("/issues/search", "GET"),
+  issueController.searchIssues
+);
+
 module.exports = router;
