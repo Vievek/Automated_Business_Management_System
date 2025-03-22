@@ -13,6 +13,7 @@ const researchRoutes = require("./routes/researchRoutes");
 const issueRoutes = require("./routes/issueRoutes");
 const incomeRoutes = require("./routes/incomeRoutes");
 const expenseRoutes = require("./routes/expenseRoutes");
+const salaryRoutes = require("./routes/salaryRoutes");
 
 dotenv.config();
 
@@ -40,6 +41,7 @@ app.use("/api/researches", researchRoutes);
 app.use("/api/issues", issueRoutes);
 app.use("/api/income", incomeRoutes);
 app.use("/api/expenses", expenseRoutes);
+app.use("/api/salaries", salaryRoutes);
 
 //Define a Simple route
 app.get("/", (req, res) => res.send("Hello World!"));
