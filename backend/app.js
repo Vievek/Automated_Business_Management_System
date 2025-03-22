@@ -2,6 +2,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const cors = require("cors");
+
 const userRoutes = require("./routes/userRoutes");
 const policyRoutes = require("./routes/policyRoutes");
 const projectRoutes = require("./routes/projectRoutes");
@@ -10,6 +11,9 @@ const taskRoutes = require("./routes/taskRoutes");
 const noteRoutes = require("./routes/noteRoutes");
 const researchRoutes = require("./routes/researchRoutes");
 const issueRoutes = require("./routes/issueRoutes");
+const incomeRoutes = require("./routes/incomeRoutes");
+const expenseRoutes = require("./routes/expenseRoutes");
+
 dotenv.config();
 
 const app = express();
@@ -34,6 +38,8 @@ app.use("/api/tasks", taskRoutes);
 app.use("/api/notes", noteRoutes);
 app.use("/api/researches", researchRoutes);
 app.use("/api/issues", issueRoutes);
+app.use("/api/income", incomeRoutes);
+app.use("/api/expenses", expenseRoutes);
 
 //Define a Simple route
 app.get("/", (req, res) => res.send("Hello World!"));
