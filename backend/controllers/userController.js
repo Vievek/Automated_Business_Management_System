@@ -105,26 +105,16 @@ exports.getUserProfile = async (req, res) => {
   }
 };
 
-// Update User Details
+// Update User Details (No authentication checks, handled by ABAC middleware)
 exports.updateUser = async (req, res) => {
   const { id } = req.params; // User ID to update
   const updates = req.body; // Fields to update
-  const { currentPassword } = req.body; // Current password for verification
-  const authenticatedUserId = req.user.id; // Extracted from JWT payload
-  const authenticatedUserRole = req.user.role; // Extracted from JWT payload
 
   try {
     // Find the user to update
     const userToUpdate = await User.findById(id);
     if (!userToUpdate) {
       return res.status(404).json({ error: "User not found" });
-    }
-
-    // Check if the authenticated user is authorized to update
-    if (authenticatedUserId !== id && authenticatedUserRole !== "admin") {
-      return res
-        .status(403)
-        .json({ error: "Unauthorized to update this user" });
     }
 
     // Define allowed fields for update
@@ -155,19 +145,6 @@ exports.updateUser = async (req, res) => {
 
     // Check if password is being updated
     if (validUpdates.includes("password")) {
-      if (!currentPassword) {
-        return res.status(400).json({ error: "Current password is required" });
-      }
-
-      // Verify the current password
-      const isPasswordValid = await bcrypt.compare(
-        currentPassword,
-        userToUpdate.password
-      );
-      if (!isPasswordValid) {
-        return res.status(400).json({ error: "Current password is incorrect" });
-      }
-
       // Hash the new password before saving
       updates.password = await bcrypt.hash(updates.password, 10);
     }
@@ -185,6 +162,75 @@ exports.updateUser = async (req, res) => {
     delete userResponse.password; // Remove password from the response
 
     res.json({ message: "User updated successfully", user: userResponse });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};
+
+// Delete User
+exports.deleteUser = async (req, res) => {
+  const { id } = req.params; // User ID to delete
+
+  try {
+    const user = await User.findByIdAndDelete(id);
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+    res.json({ message: "User deleted successfully" });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};
+
+// Get Users by Filters (role, currentStatus, workingProject)
+exports.getUsersByFilters = async (req, res) => {
+  const { role, currentStatus, workingProject } = req.query;
+
+  try {
+    const filter = {};
+    if (role) filter.role = role;
+    if (currentStatus) filter.currentStatus = currentStatus;
+    if (workingProject) filter.workingProject = workingProject;
+
+    const users = await User.find(filter)
+      .populate("projects")
+      .populate("workingProject")
+      .populate("teams")
+      .populate("tasks")
+      .populate("researches")
+      .populate("notes");
+
+    res.json(users);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};
+
+// Search Users by any field
+exports.searchUsers = async (req, res) => {
+  const { query } = req.query;
+
+  try {
+    const users = await User.find({
+      $or: [
+        { username: { $regex: query, $options: "i" } },
+        { firstname: { $regex: query, $options: "i" } },
+        { lastname: { $regex: query, $options: "i" } },
+        { phone: { $regex: query, $options: "i" } },
+        { email: { $regex: query, $options: "i" } },
+        { nicNo: { $regex: query, $options: "i" } },
+        { role: { $regex: query, $options: "i" } },
+        { currentStatus: { $regex: query, $options: "i" } },
+      ],
+    })
+      .populate("projects")
+      .populate("workingProject")
+      .populate("teams")
+      .populate("tasks")
+      .populate("researches")
+      .populate("notes");
+
+    res.json(users);
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
