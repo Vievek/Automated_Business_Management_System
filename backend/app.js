@@ -14,6 +14,11 @@ const issueRoutes = require("./routes/issueRoutes");
 const incomeRoutes = require("./routes/incomeRoutes");
 const expenseRoutes = require("./routes/expenseRoutes");
 const salaryRoutes = require("./routes/salaryRoutes");
+const backlogRoutes = require("./routes/backlogRoutes");
+const questionRoutes = require("./routes/questionRoutes");
+const answerRoutes = require("./routes/answerRoutes");
+const quotationRoutes = require("./routes/quotationRoutes");
+const srsDocumentRoutes = require("./routes/srsDocumentRoutes");
 
 dotenv.config();
 
@@ -42,6 +47,11 @@ app.use("/api/issues", issueRoutes);
 app.use("/api/income", incomeRoutes);
 app.use("/api/expenses", expenseRoutes);
 app.use("/api/salaries", salaryRoutes);
+app.use("/api/backlogs", backlogRoutes);
+app.use("/api/questions", questionRoutes);
+app.use("/api/answers", answerRoutes);
+app.use("/api/quotations", quotationRoutes);
+app.use("/api/srs-documents", srsDocumentRoutes);
 
 //Define a Simple route
 app.get("/", (req, res) => res.send("Hello World!"));
