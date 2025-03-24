@@ -1,101 +1,37 @@
 "use client";
-import React, { useState, useRef } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import React from "react";
+import AiDialog from "./_components/AiDialog";
+import { useState } from "react";
 
-import { Button } from "@/components/ui/button";
+function page() {
+  const InputPrompt = "give me a paragraph about";
+  const DialogTitle = "Prompt to get response";
+  const placeholder = "Enter your prompt here";
 
-import { Textarea } from "@/components/ui/textarea";
-import { LoaderCircle } from "lucide-react";
-// import { chatSession } from "@/utils/GeminiAIModel";
+  const [childData, setChildData] = useState(""); // State in Parent
 
-function Page() {
-  const [openDialog, setOpenDialog] = useState(false);
-  const [geminiResponse, setGeminiResponse] = useState("");
-  const [loading, setLoading] = useState(false);
-  const textareaRef = useRef(null);
-
-  const handleSubmit = async (event) => {
-    setLoading(true);
-    event.preventDefault();
-    console.log(textareaRef.current.value);
-
-    const InputPrompt =
-      "give me a paragraph about " + textareaRef.current.value + "";
-    console.log(InputPrompt);
-    try {
-      const response = await fetch("/api/gemini", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ prompt: InputPrompt }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch response from Gemini API");
-      }
-
-      const data = await response.json();
-      setGeminiResponse(data.response);
-      setOpenDialog(false);
-    } catch (error) {
-      console.error("Error fetching Gemini response:", error);
-      setGeminiResponse("Error fetching response.");
-    }
-    setLoading(false);
-    setOpenDialog(false);
+  // Callback function to receive data from child
+  const handleChildData = (data) => {
+    setChildData(data);
   };
 
   return (
     <>
-      <Button onClick={() => setOpenDialog(true)}>Prompt</Button>
-      <Dialog open={openDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Prompt to get response</DialogTitle>
-            <form onSubmit={handleSubmit}>
-              <Textarea
-                placeholder="Enter your Prompt"
-                className="my-4"
-                ref={textareaRef}
-                required
-              />
-              <section className="flex justify-end gap-2">
-                <Button
-                  onClick={() => setOpenDialog(false)}
-                  variant={"outline"}
-                  type="button"
-                >
-                  Cancel
-                </Button>
-                <Button type="submit" disabled={loading}>
-                  {loading ? (
-                    <>
-                      <LoaderCircle className="animate-spin" />
-                      Generating from AI
-                    </>
-                  ) : (
-                    "Submit"
-                  )}
-                </Button>
-              </section>
-            </form>
-          </DialogHeader>
-        </DialogContent>
-      </Dialog>
+      <h1>home</h1>
+      <div className="absolute bottom-4 right-4">
+        <AiDialog
+          inputPrompt={InputPrompt}
+          dialogTitle={DialogTitle}
+          placeholder={placeholder}
+          sendDataToParent={handleChildData}
+        />
+      </div>
 
       <div className="mt-4">
-        <p>{geminiResponse}</p>
+        <p>{childData}</p>
       </div>
     </>
   );
 }
 
-export default Page;
+export default page;
