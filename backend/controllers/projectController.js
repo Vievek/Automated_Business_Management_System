@@ -44,37 +44,37 @@ exports.getProjectById = async (req, res) => {
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
+};
 
-  // Update a project
-  exports.updateProject = async (req, res) => {
-    const { projectId } = req.params;
-    const { name, description, team } = req.body; // `team` is optional
-    try {
-      const project = await Project.findByIdAndUpdate(
-        projectId,
-        { name, description, team },
-        { new: true }
-      );
-      if (!project) {
-        return res.status(404).json({ message: "Project not found" });
-      }
-      res.json(project);
-    } catch (err) {
-      res.status(400).json({ error: err.message });
+// Update a project
+exports.updateProject = async (req, res) => {
+  const { projectId } = req.params;
+  const { name, description, team } = req.body; // `team` is optional
+  try {
+    const project = await Project.findByIdAndUpdate(
+      projectId,
+      { name, description, team },
+      { new: true }
+    );
+    if (!project) {
+      return res.status(404).json({ message: "Project not found" });
     }
-  };
+    res.json(project);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};
 
-  // Delete a project
-  exports.deleteProject = async (req, res) => {
-    const { projectId } = req.params;
-    try {
-      const project = await Project.findByIdAndDelete(projectId);
-      if (!project) {
-        return res.status(404).json({ message: "Project not found" });
-      }
-      res.json({ message: "Project deleted successfully" });
-    } catch (err) {
-      res.status(400).json({ error: err.message });
+// Delete a project
+exports.deleteProject = async (req, res) => {
+  const { projectId } = req.params;
+  try {
+    const project = await Project.findByIdAndDelete(projectId);
+    if (!project) {
+      return res.status(404).json({ message: "Project not found" });
     }
-  };
+    res.json({ message: "Project deleted successfully" });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
 };

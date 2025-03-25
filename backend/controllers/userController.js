@@ -49,19 +49,32 @@ exports.login = async (req, res) => {
     if (!user || !(await bcrypt.compare(password, user.password))) {
       return res.status(400).json({ error: "Invalid credentials" });
     }
+
     const token = jwt.sign(
-      {
+      { id: user._id, username: user.username, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: "1h" }
+    );
+
+    // Enhanced cookie settings
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: true, // Force HTTPS - set to false for local testing
+      sameSite: "none", // Required for cross-site cookies
+      domain: process.env.COOKIE_DOMAIN || "localhost", // Important!
+      maxAge: 3600000,
+      path: "/",
+    });
+
+    res.json({
+      message: "Login successful",
+      user: {
         id: user._id,
         username: user.username,
         role: user.role,
         email: user.email,
-        currentStatus: user.currentStatus,
-        teams: user.teams,
       },
-      process.env.JWT_SECRET,
-      { expiresIn: "1h" }
-    );
-    res.json({ token });
+    });
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
@@ -234,4 +247,10 @@ exports.searchUsers = async (req, res) => {
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
+};
+
+// logout
+exports.logout = async (req, res) => {
+  res.clearCookie("token");
+  res.json({ message: "Logged out successfully" });
 };
