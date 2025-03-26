@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { use } from "react"; // Import the use function
+import { use } from "react";
 import ProtectedRoute from "@/app/_components/protectedRoute";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
@@ -10,22 +10,20 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Trash2 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
-// Wrap the component function to access params
 export default function EmployeeDetailsPage({ params }) {
-  // Unwrap the params promise
   const unwrappedParams = use(params);
   const router = useRouter();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     const fetchUser = async () => {
       try {
         setLoading(true);
-        // Use unwrappedParams.userID instead of params.userID
         const response = await customFetch(
           `/users/users/${unwrappedParams.userID}`
         );
@@ -42,7 +40,34 @@ export default function EmployeeDetailsPage({ params }) {
     };
 
     fetchUser();
-  }, [unwrappedParams.userId, router]); // Use unwrappedParams.userId in dependencies
+  }, [unwrappedParams.userId, router]);
+
+  const handleDelete = async () => {
+    if (
+      !confirm(
+        "Are you sure you want to delete this employee? This action cannot be undone."
+      )
+    ) {
+      return;
+    }
+
+    try {
+      setDeleting(true);
+      await customFetch(`/users/users/${user._id}`, {
+        method: "DELETE",
+      });
+
+      toast.success("Employee deleted successfully");
+      router.push("/authenticated/hr/dashboard");
+    } catch (error) {
+      console.error("Error deleting user:", error);
+      toast.error("Failed to delete employee", {
+        description: error.message || "Please try again later",
+      });
+    } finally {
+      setDeleting(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -156,12 +181,29 @@ export default function EmployeeDetailsPage({ params }) {
           </CardContent>
         </Card>
 
-        <div className="flex justify-end gap-4">
+        <div className="flex justify-end gap-4 flex-wrap">
           <Button
             variant="outline"
             onClick={() => router.push("/authenticated/hr/dashboard")}
           >
             Back to Dashboard
+          </Button>
+          <Button
+            variant="destructive"
+            onClick={handleDelete}
+            disabled={deleting}
+          >
+            {deleting ? (
+              <>
+                <Trash2 className="mr-2 h-4 w-4 animate-spin" />
+                Deleting...
+              </>
+            ) : (
+              <>
+                <Trash2 className="mr-2 h-4 w-4" />
+                Delete Employee
+              </>
+            )}
           </Button>
           <Button
             onClick={() =>
