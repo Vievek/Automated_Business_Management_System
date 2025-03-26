@@ -24,6 +24,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { Label } from "@/components/ui/label";
+import { Search } from "lucide-react";
 
 function HRDashboardPage() {
   const [users, setUsers] = useState([]);
@@ -33,25 +34,40 @@ function HRDashboardPage() {
     currentStatus: "",
     workingProject: "",
   });
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
-    fetchUsers();
-  }, [filters]);
+    const timer = setTimeout(() => {
+      fetchUsers();
+    }, 300); // Debounce for 300ms
+
+    return () => clearTimeout(timer);
+  }, [filters, searchQuery]);
 
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      // Convert filters to URL query parameters
-      const queryParams = new URLSearchParams();
-      if (filters.role) queryParams.append("role", filters.role);
-      if (filters.currentStatus)
-        queryParams.append("currentStatus", filters.currentStatus);
-      if (filters.workingProject)
-        queryParams.append("workingProject", filters.workingProject);
 
-      const response = await customFetch(
-        `/users/filtered-users?${queryParams.toString()}`
-      );
+      let response;
+      if (searchQuery) {
+        // Use search endpoint if there's a search query
+        response = await customFetch(
+          `/users/search?query=${encodeURIComponent(searchQuery)}`
+        );
+      } else {
+        // Use filtered endpoint if no search query
+        const queryParams = new URLSearchParams();
+        if (filters.role) queryParams.append("role", filters.role);
+        if (filters.currentStatus)
+          queryParams.append("currentStatus", filters.currentStatus);
+        if (filters.workingProject)
+          queryParams.append("workingProject", filters.workingProject);
+
+        response = await customFetch(
+          `/users/filtered-users?${queryParams.toString()}`
+        );
+      }
+
       setUsers(response);
     } catch (error) {
       console.error("Error fetching users:", error);
@@ -64,9 +80,12 @@ function HRDashboardPage() {
   };
 
   const handleFilterChange = (name, value) => {
-    // If the value is "all", set it to empty string
     const finalValue = value === "all" ? "" : value;
     setFilters((prev) => ({ ...prev, [name]: finalValue }));
+  };
+
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
   };
 
   return (
@@ -79,52 +98,68 @@ function HRDashboardPage() {
           </Link>
         </div>
 
-        {/* Filters Section */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          <div>
-            <Label htmlFor="role">Role</Label>
-            <Input
-              id="role"
-              placeholder="Filter by role"
-              value={filters.role}
-              onChange={(e) => handleFilterChange("role", e.target.value)}
-            />
+        {/* Search Bar */}
+        <div className="relative mb-6">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <Search className="h-5 w-5 text-gray-400" />
           </div>
-
-          <div>
-            <Label htmlFor="workingProject">Working Project</Label>
-            <Input
-              id="workingProject"
-              placeholder="Filter by project"
-              value={filters.workingProject}
-              onChange={(e) =>
-                handleFilterChange("workingProject", e.target.value)
-              }
-            />
-          </div>
-
-          <div>
-            <Label htmlFor="currentStatus">Current Status</Label>
-            <Select
-              value={filters.currentStatus}
-              onValueChange={(value) =>
-                handleFilterChange("currentStatus", value)
-              }
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Statuses</SelectItem>
-                <SelectItem value="working on project">
-                  Working on project
-                </SelectItem>
-                <SelectItem value="on bench">On bench</SelectItem>
-                <SelectItem value="chief">Chief</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+          <Input
+            type="text"
+            placeholder="Search employees by name, email, or username..."
+            className="pl-10"
+            value={searchQuery}
+            onChange={handleSearchChange}
+          />
         </div>
+
+        {/* Filters Section - Only show when not searching */}
+        {!searchQuery && (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+            <div>
+              <Label htmlFor="role">Role</Label>
+              <Input
+                id="role"
+                placeholder="Filter by role"
+                value={filters.role}
+                onChange={(e) => handleFilterChange("role", e.target.value)}
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="workingProject">Working Project</Label>
+              <Input
+                id="workingProject"
+                placeholder="Filter by project"
+                value={filters.workingProject}
+                onChange={(e) =>
+                  handleFilterChange("workingProject", e.target.value)
+                }
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="currentStatus">Current Status</Label>
+              <Select
+                value={filters.currentStatus || "all"}
+                onValueChange={(value) =>
+                  handleFilterChange("currentStatus", value)
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Statuses</SelectItem>
+                  <SelectItem value="working on project">
+                    Working on project
+                  </SelectItem>
+                  <SelectItem value="on bench">On bench</SelectItem>
+                  <SelectItem value="chief">Chief</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        )}
 
         {/* Users Table */}
         <div className="border rounded-lg overflow-hidden">
@@ -155,7 +190,9 @@ function HRDashboardPage() {
               ) : users.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={8} className="text-center py-8">
-                    No employees found matching your filters
+                    {searchQuery
+                      ? "No employees found matching your search"
+                      : "No employees found matching your filters"}
                   </TableCell>
                 </TableRow>
               ) : (
