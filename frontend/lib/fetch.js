@@ -27,7 +27,7 @@ const customFetch = async (url, options = {}) => {
     if (error.status === 401) {
       // Clear invalid auth state
       if (typeof window !== "undefined") {
-        window.location.href = "/login";
+        window.location.href = "/";
       }
     }
     throw error;
