@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import ProtectedRoute from "@/app/_components/protectedRoute";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -27,6 +28,7 @@ import { Label } from "@/components/ui/label";
 import { Search } from "lucide-react";
 
 function HRDashboardPage() {
+  const router = useRouter();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({
@@ -86,6 +88,10 @@ function HRDashboardPage() {
 
   const handleSearchChange = (e) => {
     setSearchQuery(e.target.value);
+  };
+
+  const handleViewUser = (userId) => {
+    router.push(`/authenticated/hr/employee/${userId}`);
   };
 
   return (
@@ -220,7 +226,11 @@ function HRDashboardPage() {
                     <TableCell>{user.yearsOfExperience} years</TableCell>
                     <TableCell>${user.salary.toLocaleString()}</TableCell>
                     <TableCell>
-                      <Button variant="outline" size="sm">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleViewUser(user._id)}
+                      >
                         View
                       </Button>
                     </TableCell>
