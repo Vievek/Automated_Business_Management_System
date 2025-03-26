@@ -16,7 +16,7 @@ const useAuthStore = create((set) => ({
       });
 
       // Fetch user profile after successful login
-      const userData = await customFetch(`/users/profile/${data.user.id}`, {
+      const userData = await customFetch(`/users/profile`, {
         method: "GET",
       });
       console.log(userData);

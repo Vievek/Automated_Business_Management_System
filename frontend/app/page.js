@@ -1,33 +1,51 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import useAuthStore from "../stores/authStore";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { LoaderCircle } from "lucide-react";
 
 function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const { login, loading, error } = useAuthStore();
+  const { user, fetchUser, login, loading, error } = useAuthStore();
   const router = useRouter();
+
+  // Function to handle redirection based on role
+  const redirectUser = (role) => {
+    const roleRoutes = {
+      pm: "/authenticated/pm/dashboard",
+      hr: "/authenticated/hr/dashboard",
+    };
+    router.push(roleRoutes[role] || "/dashboard");
+  };
+  // Check if the user is already authenticated when the page loads
+  useEffect(() => {
+    async function checkAuth() {
+      try {
+        const loggedInUser = await fetchUser();
+        if (loggedInUser?.role) {
+          redirectUser(loggedInUser.role);
+        }
+      } catch (error) {
+        console.error("User not authenticated:", error);
+      }
+    }
+    checkAuth();
+  }, [router, fetchUser]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const user = await login(username, password);
-      // Redirect based on role
-      if (user.role === "pm") {
-        router.push("/pm/dashboard");
-      } else {
-        router.push("/dashboard");
-      }
+      redirectUser(user.role);
     } catch (err) {
       console.error(err);
     }
   };
-
   return (
     <div className="flex h-screen items-center justify-center">
       <Card className="w-[350px]">
@@ -60,7 +78,14 @@ function Login() {
               </div>
               {error && <p className="text-red-500 text-sm">{error}</p>}
               <Button type="submit" disabled={loading}>
-                {loading ? "Logging in..." : "Login"}
+                {loading ? (
+                  <>
+                    <LoaderCircle className="animate-spin" />
+                    <span>Loading...</span>
+                  </>
+                ) : (
+                  "Login"
+                )}
               </Button>
             </div>
           </form>
