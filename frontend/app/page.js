@@ -22,20 +22,20 @@ function Login() {
     };
     router.push(roleRoutes[role] || "/dashboard");
   };
-  // Check if the user is already authenticated when the page loads
-  // useEffect(() => {
-  //   async function checkAuth() {
-  //     try {
-  //       const loggedInUser = await fetchUser();
-  //       if (loggedInUser?.role) {
-  //         redirectUser(loggedInUser.role);
-  //       }
-  //     } catch (error) {
-  //       console.error("User not authenticated:", error);
-  //     }
-  //   }
-  //   checkAuth();
-  // }, [router, fetchUser]);
+  //Check if the user is already authenticated when the page loads
+  useEffect(() => {
+    async function checkAuth() {
+      try {
+        const loggedInUser = await fetchUser();
+        if (loggedInUser?.role) {
+          redirectUser(loggedInUser.role);
+        }
+      } catch (error) {
+        console.error("User not authenticated:", error);
+      }
+    }
+    checkAuth();
+  }, [router, fetchUser]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
