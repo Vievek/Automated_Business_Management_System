@@ -5,34 +5,18 @@ const authMiddleware = require("../middleware/auth");
 const abacMiddleware = require("../middleware/abac");
 
 // Create a new issue
-router.post(
-  "/issues",
-  authMiddleware,
-  abacMiddleware("/issues", "POST"),
-  issueController.createIssue
-);
+router.post("/issues", authMiddleware, issueController.createIssue);
 
 // Get all issues
-router.get(
-  "/issues",
-  authMiddleware,
-  abacMiddleware("/issues", "GET"),
-  issueController.getAllIssues
-);
+router.get("/issues", authMiddleware, issueController.getAllIssues);
 
 // Get a single issue by ID
-router.get(
-  "/issues/:id",
-  authMiddleware,
-  abacMiddleware("/issues/:id", "GET"),
-  issueController.getIssueById
-);
+router.get("/issues/:id", authMiddleware, issueController.getIssueById);
 
 // Get issues by raisedBy
 router.get(
   "/issues/raisedBy/:id",
   authMiddleware,
-  abacMiddleware("/issues/raisedBy/:id", "GET"),
   issueController.getIssuesByRaisedBy
 );
 
@@ -40,32 +24,16 @@ router.get(
 router.get(
   "/issues/raisedTo/:id",
   authMiddleware,
-  abacMiddleware("/issues/raisedTo/:id", "GET"),
   issueController.getIssuesByRaisedTo
 );
 
 // Update an issue
-router.put(
-  "/issues/:id",
-  authMiddleware,
-  abacMiddleware("/issues/:id", "PUT"),
-  issueController.updateIssue
-);
+router.put("/issues/:id", authMiddleware, issueController.updateIssue);
 
 // Delete an issue
-router.delete(
-  "/:id",
-  authMiddleware,
-  abacMiddleware("/issues/:id", "DELETE"),
-  issueController.deleteIssue
-);
+router.delete("/:id", authMiddleware, issueController.deleteIssue);
 
 // Search issues
-router.get(
-  "/issues/search",
-  authMiddleware,
-  abacMiddleware("/issues/search", "GET"),
-  issueController.searchIssues
-);
+router.get("/issues/search", authMiddleware, issueController.searchIssues);
 
 module.exports = router;
