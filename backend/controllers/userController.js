@@ -96,11 +96,33 @@ exports.getAllUsers = async (req, res) => {
   }
 };
 
-// Get a single user by ID
+// Get current user by ID
 exports.getUserProfile = async (req, res) => {
   try {
     const userId = req.user.id; // Extracted from JWT payload
     const user = await User.findById(userId)
+      .populate("projects")
+      .populate("teams")
+      .populate("workingProject")
+      .populate("tasks")
+      .populate("researches")
+      .populate("notes");
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    res.json(user);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};
+
+// Get User by ID
+exports.getUserByID = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = await User.findById(id)
       .populate("projects")
       .populate("teams")
       .populate("workingProject")
