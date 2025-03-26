@@ -207,7 +207,7 @@ export default function EmployeeDetailsPage({ params }) {
           </Button>
           <Button
             onClick={() =>
-              router.push(`/authenticated/hr/employees/${user._id}/edit`)
+              router.push(`/authenticated/hr/editEmployee/${user._id}`)
             }
           >
             Edit Employee
