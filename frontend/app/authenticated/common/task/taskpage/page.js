@@ -237,7 +237,7 @@ function TasksPage() {
         )}
       </div>
       <Link
-        href="/authenticated/common/tasks/newTask"
+        href="/authenticated/common/task/newTask"
         className="fixed bottom-4 right-4"
       >
         <Button>New Task</Button>

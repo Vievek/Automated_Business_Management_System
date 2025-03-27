@@ -16,7 +16,7 @@ router.post(
 router.get(
   "/projects",
   authMiddleware,
-  abacMiddleware("/projects", "GET"),
+  // abacMiddleware("/projects", "GET"),
   projectController.getAllProjects
 );
 
