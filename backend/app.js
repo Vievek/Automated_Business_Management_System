@@ -19,7 +19,6 @@ const questionRoutes = require("./routes/questionRoutes");
 const answerRoutes = require("./routes/answerRoutes");
 const quotationRoutes = require("./routes/quotationRoutes");
 const srsDocumentRoutes = require("./routes/srsDocumentRoutes");
-const financialSummaryRoutes = require("./routes/financialSummaryRoutes");
 
 dotenv.config();
 
@@ -63,7 +62,6 @@ app.use("/api/questions", questionRoutes);
 app.use("/api/answers", answerRoutes);
 app.use("/api/quotations", quotationRoutes);
 app.use("/api/srs-documents", srsDocumentRoutes);
-app.use("/api/financial-summaries", financialSummaryRoutes);
 
 //Define a Simple route
 app.get("/", (req, res) => res.send("Hello World!"));

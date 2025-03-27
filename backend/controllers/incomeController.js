@@ -1,36 +1,4 @@
 const Income = require("../models/Income");
-const FinancialSummary = require("../models/FinancialSummary");
-const Expense = require("../models/Expense");
-
-// Helper function to update financial summary
-const updateFinancialSummary = async (projectId) => {
-  const incomes = await Income.find({ projectId });
-  const expenses = await Expense.find({ projectId });
-
-  const totalIncome = incomes.reduce((sum, income) => sum + income.amount, 0);
-  const totalExpense = expenses.reduce(
-    (sum, expense) => sum + expense.amount,
-    0
-  );
-  const profitLoss = totalIncome - totalExpense;
-
-  let financialSummary = await FinancialSummary.findOne({ projectId });
-
-  if (!financialSummary) {
-    financialSummary = new FinancialSummary({
-      projectId,
-      totalIncome,
-      totalExpense,
-      profitLoss,
-    });
-  } else {
-    financialSummary.totalIncome = totalIncome;
-    financialSummary.totalExpense = totalExpense;
-    financialSummary.profitLoss = profitLoss;
-  }
-
-  await financialSummary.save();
-};
 
 // Create Income
 exports.createIncome = async (req, res) => {
@@ -39,9 +7,6 @@ exports.createIncome = async (req, res) => {
 
     const income = new Income({ projectId, amount, description });
     await income.save();
-
-    await updateFinancialSummary(projectId); // Update project-specific summary
-    await updateFinancialSummary(null); // Update general summary
 
     res.status(201).json({ message: "Income created successfully", income });
   } catch (error) {
@@ -63,7 +28,7 @@ exports.getAllIncomes = async (req, res) => {
   }
 };
 
-//Get All Incomes by Project ID
+// Get All Incomes by Project ID
 exports.getIncomesByProjectId = async (req, res) => {
   try {
     const projectId = req.params.projectId;
@@ -78,6 +43,7 @@ exports.getIncomesByProjectId = async (req, res) => {
       .json({ message: "Error fetching incomes", error: error.message });
   }
 };
+
 // Get Income by ID
 exports.getIncomeById = async (req, res) => {
   try {
@@ -106,17 +72,11 @@ exports.updateIncome = async (req, res) => {
       return res.status(404).json({ message: "Income not found" });
     }
 
-    const oldProjectId = income.projectId; // Store old projectId for summary update
-
     income.amount = amount;
     income.description = description;
     income.projectId = projectId;
 
     await income.save();
-
-    await updateFinancialSummary(oldProjectId); // Update old project summary
-    await updateFinancialSummary(projectId); // Update new project summary
-    await updateFinancialSummary(null); // Update general summary
 
     res.status(200).json({ message: "Income updated successfully", income });
   } catch (error) {
@@ -134,12 +94,7 @@ exports.deleteIncome = async (req, res) => {
       return res.status(404).json({ message: "Income not found" });
     }
 
-    const projectId = income.projectId; // Store projectId for summary update
-
     await income.remove();
-
-    await updateFinancialSummary(projectId); // Update project summary
-    await updateFinancialSummary(null); // Update general summary
 
     res.status(200).json({ message: "Income deleted successfully" });
   } catch (error) {
