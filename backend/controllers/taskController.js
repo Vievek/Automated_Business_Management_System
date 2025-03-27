@@ -1,4 +1,5 @@
 const Task = require("../models/Task");
+const User = require("../models/User");
 
 // Create Task
 exports.createTask = async (req, res) => {
@@ -210,6 +211,30 @@ exports.getTasksByProjectIdAndUserId = async (req, res) => {
       project: req.params.projectId,
       assignedTo: req.params.userId,
     }).populate("assignedBy assignedTo project notes");
+    res.status(200).json(tasks);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
+// get task by assignedBY id
+exports.getTasksByAssignedById = async (req, res) => {
+  try {
+    const tasks = await Task.find({ assignedBy: req.params.userId }).populate(
+      "assignedBy assignedTo project notes"
+    );
+    res.status(200).json(tasks);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
+// get task by assignedTo id
+exports.getTasksByAssignedToId = async (req, res) => {
+  try {
+    const tasks = await Task.find({ assignedTo: req.params.userId }).populate(
+      "assignedBy assignedTo project notes"
+    );
     res.status(200).json(tasks);
   } catch (error) {
     res.status(400).json({ error: error.message });

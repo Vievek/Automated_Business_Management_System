@@ -5,58 +5,27 @@ const authMiddleware = require("../middleware/auth");
 const abacMiddleware = require("../middleware/abac");
 
 // Create a task
-router.post(
-  "/",
-  authMiddleware,
-  abacMiddleware("/tasks", "POST"),
-  taskController.createTask
-);
+router.post("/", authMiddleware, taskController.createTask);
 
 // Get all tasks
-router.get(
-  "/",
-  authMiddleware,
-  abacMiddleware("/tasks", "GET"),
-  taskController.getTasks
-);
+router.get("/", authMiddleware, taskController.getTasks);
 
 // Get a task by ID
-router.get(
-  "/:id",
-  authMiddleware,
-  abacMiddleware("/tasks", "GET"),
-  taskController.getTaskById
-);
+router.get("/:id", authMiddleware, taskController.getTaskById);
 
 // Update a task
-router.put(
-  "/:id",
-  authMiddleware,
-  abacMiddleware("/tasks", "PUT"),
-  taskController.updateTask
-);
+router.put("/:id", authMiddleware, taskController.updateTask);
 
 // Delete a task
-router.delete(
-  "/:id",
-  authMiddleware,
-  abacMiddleware("/tasks", "DELETE"),
-  taskController.deleteTask
-);
+router.delete("/:id", authMiddleware, taskController.deleteTask);
 
 // Get tasks by user ID
-router.get(
-  "/users/:userId",
-  authMiddleware,
-  abacMiddleware("/tasks/users/:userId", "GET"),
-  taskController.getTasksByUserId
-);
+router.get("/users/:userId", authMiddleware, taskController.getTasksByUserId);
 
 // Get tasks by project ID
 router.get(
   "/projects/:projectId",
   authMiddleware,
-  abacMiddleware("/tasks/projects/:projectId", "GET"),
   taskController.getTasksByProjectId
 );
 
@@ -64,16 +33,24 @@ router.get(
 router.get(
   "/projects/:projectId/users/:userId",
   authMiddleware,
-  abacMiddleware("/tasks/projects/:projectId/users/:userId", "GET"),
   taskController.getTasksByProjectIdAndUserId
 );
 
 // Search tasks
+router.get("/search", authMiddleware, taskController.searchTasks);
+
+// get task by assignedBY id
 router.get(
-  "/search",
+  "/assignedBy/:userId",
   authMiddleware,
-  abacMiddleware("/tasks/search", "GET"),
-  taskController.searchTasks
+  taskController.getTasksByAssignedById
+);
+
+// get task by assignedTo id
+router.get(
+  "/assignedTo/:userId",
+  authMiddleware,
+  taskController.getTasksByAssignedToId
 );
 
 module.exports = router;

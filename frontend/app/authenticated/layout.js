@@ -8,6 +8,9 @@ function layout({ children }) {
       <Link href="/authenticated/common/issues/issuepage">
         <Button>issue page</Button>
       </Link>
+      <Link href="/authenticated/common/task/taskpage">
+        <Button>task page</Button>
+      </Link>
       {children}
     </>
   );
