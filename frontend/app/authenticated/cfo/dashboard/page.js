@@ -46,16 +46,13 @@ function CFODashboardPage() {
     );
     return {
       totalIncome,
-      totalExpense: totalExpense,
+      totalExpense,
       profitLoss: totalIncome - totalExpense,
     };
   };
 
-  // Company-wide summary (non-project transactions)
-  const companySummary = calculateSummary(
-    allIncomes.filter((income) => !income.projectId),
-    allExpenses.filter((expense) => !expense.projectId)
-  );
+  // Company-wide summary (ALL transactions)
+  const companySummary = calculateSummary(allIncomes, allExpenses);
 
   useEffect(() => {
     fetchFinancialData();
@@ -136,11 +133,6 @@ function CFODashboardPage() {
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString();
   };
-
-  const getDefaultIncomes = () =>
-    allIncomes.filter((income) => !income.projectId);
-  const getDefaultExpenses = () =>
-    allExpenses.filter((expense) => !expense.projectId);
 
   return (
     <ProtectedRoute>
@@ -300,10 +292,10 @@ function CFODashboardPage() {
           </>
         ) : (
           <>
-            {/* Company Financial Summary */}
+            {/* Company Financial Summary (ALL transactions) */}
             <div className="bg-white rounded-lg shadow p-6 mb-8">
               <h2 className="text-2xl font-bold mb-4">
-                Company Financial Summary
+                Company Financial Summary (All Transactions)
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="bg-green-50 p-4 rounded-lg">
@@ -333,13 +325,13 @@ function CFODashboardPage() {
               </div>
             </div>
 
-            {/* Default Incomes and Expenses */}
+            {/* All Incomes and Expenses */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
               <div>
                 <h2 className="text-xl font-semibold mb-4">
-                  Company Incomes ({getDefaultIncomes().length})
+                  All Incomes ({allIncomes.length})
                 </h2>
-                {getDefaultIncomes().length > 0 ? (
+                {allIncomes.length > 0 ? (
                   <div className="border rounded-lg overflow-hidden">
                     <Table>
                       <TableHeader>
@@ -347,11 +339,12 @@ function CFODashboardPage() {
                           <TableHead>Amount</TableHead>
                           <TableHead>Description</TableHead>
                           <TableHead>Date</TableHead>
+                          <TableHead>Project</TableHead>
                           <TableHead>Actions</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {getDefaultIncomes().map((income) => (
+                        {allIncomes.map((income) => (
                           <TableRow key={income._id}>
                             <TableCell>
                               {formatCurrency(income.amount)}
@@ -364,6 +357,9 @@ function CFODashboardPage() {
                               {income.description}
                             </TableCell>
                             <TableCell>{formatDate(income.date)}</TableCell>
+                            <TableCell>
+                              {income.projectId?.name || "N/A"}
+                            </TableCell>
                             <TableCell>
                               <Button
                                 variant="ghost"
@@ -387,9 +383,9 @@ function CFODashboardPage() {
 
               <div>
                 <h2 className="text-xl font-semibold mb-4">
-                  Company Expenses ({getDefaultExpenses().length})
+                  All Expenses ({allExpenses.length})
                 </h2>
-                {getDefaultExpenses().length > 0 ? (
+                {allExpenses.length > 0 ? (
                   <div className="border rounded-lg overflow-hidden">
                     <Table>
                       <TableHeader>
@@ -397,11 +393,12 @@ function CFODashboardPage() {
                           <TableHead>Amount</TableHead>
                           <TableHead>Description</TableHead>
                           <TableHead>Date</TableHead>
+                          <TableHead>Project</TableHead>
                           <TableHead>Actions</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {getDefaultExpenses().map((expense) => (
+                        {allExpenses.map((expense) => (
                           <TableRow key={expense._id}>
                             <TableCell>
                               {formatCurrency(expense.amount)}
@@ -414,6 +411,9 @@ function CFODashboardPage() {
                               {expense.description}
                             </TableCell>
                             <TableCell>{formatDate(expense.date)}</TableCell>
+                            <TableCell>
+                              {expense.projectId?.name || "N/A"}
+                            </TableCell>
                             <TableCell>
                               <Button
                                 variant="ghost"
