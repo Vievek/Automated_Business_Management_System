@@ -16,6 +16,7 @@ import { toast } from "sonner";
 import customFetch from "@/lib/fetch";
 import useAuthStore from "@/stores/authStore";
 import ProtectedRoute from "@/app/_components/protectedRoute";
+import AiDialog from "@/app/_components/AiDialog";
 
 function NewIssuePage() {
   const { user } = useAuthStore();
@@ -99,6 +100,30 @@ function NewIssuePage() {
     return acc;
   }, {});
 
+  const InputPrompt =
+    "I will provide an input. Using the input, generate an issue name and details in JSON format. The issueName should be a concise title of the issue, and details should be written in the first-person perspective, describing the issue as if I am experiencing it.";
+  const DialogTitle = "Prompt to get response";
+  const placeholder = "Enter your prompt here";
+
+  // Callback function to receive data from child
+  const handleChildData = (data) => {
+    try {
+      // Parse the JSON string if it's a string
+      const parsedData = typeof data === "string" ? JSON.parse(data) : data;
+
+      setFormData((prev) => ({
+        ...prev,
+        issueName: parsedData.issueName || prev.issueName,
+        details: parsedData.details || prev.details,
+      }));
+
+      toast.success("AI-generated content applied to form");
+    } catch (error) {
+      console.error("Error parsing AI response:", error);
+      toast.error("Failed to apply AI-generated content");
+    }
+  };
+
   return (
     <ProtectedRoute>
       <div className="container mx-auto px-4 py-8">
@@ -171,6 +196,14 @@ function NewIssuePage() {
             </Button>
           </div>
         </form>
+      </div>
+      <div className="absolute bottom-4 right-4">
+        <AiDialog
+          inputPrompt={InputPrompt}
+          dialogTitle={DialogTitle}
+          placeholder={placeholder}
+          sendDataToParent={handleChildData}
+        />
       </div>
     </ProtectedRoute>
   );

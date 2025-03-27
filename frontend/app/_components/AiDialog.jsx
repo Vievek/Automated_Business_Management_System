@@ -39,10 +39,16 @@ function AiDialog({ inputPrompt, dialogTitle, placeholder, sendDataToParent }) {
       if (!response.ok) {
         throw new Error("Failed to fetch response from Gemini API");
       }
-
-      const data = await response.json();
-      setGeminiResponse(data.response);
-      sendDataToParent(data.response);
+      const responseText = await response.text();
+      const MockJsonResponse = responseText
+        .replace("```json", "")
+        .replace("```", "");
+      console.log(JSON.parse(MockJsonResponse));
+      // const data = await response.json();
+      // setGeminiResponse(data.response);
+      const responseJson = JSON.parse(MockJsonResponse);
+      setGeminiResponse(responseJson.response);
+      sendDataToParent(responseJson.response);
       setOpenDialog(false);
     } catch (error) {
       console.error("Error fetching Gemini response:", error);
