@@ -207,7 +207,13 @@ function CFODashboardPage() {
                             <TableCell>
                               {formatCurrency(income.amount)}
                             </TableCell>
-                            <TableCell>{income.description}</TableCell>
+                            <TableCell
+                              className={
+                                "max-w-[300px] whitespace-normal break-words"
+                              }
+                            >
+                              {income.description}
+                            </TableCell>
                             <TableCell>{formatDate(income.date)}</TableCell>
                             <TableCell>
                               {income.projectId?.name || "N/A"}
@@ -257,7 +263,13 @@ function CFODashboardPage() {
                             <TableCell>
                               {formatCurrency(expense.amount)}
                             </TableCell>
-                            <TableCell>{expense.description}</TableCell>
+                            <TableCell
+                              className={
+                                "max-w-[300px] whitespace-normal break-words"
+                              }
+                            >
+                              {expense.description}
+                            </TableCell>
                             <TableCell>{formatDate(expense.date)}</TableCell>
                             <TableCell>
                               {expense.projectId?.name || "N/A"}
@@ -344,7 +356,13 @@ function CFODashboardPage() {
                             <TableCell>
                               {formatCurrency(income.amount)}
                             </TableCell>
-                            <TableCell>{income.description}</TableCell>
+                            <TableCell
+                              className={
+                                "max-w-[300px] whitespace-normal break-words"
+                              }
+                            >
+                              {income.description}
+                            </TableCell>
                             <TableCell>{formatDate(income.date)}</TableCell>
                             <TableCell>
                               <Button
@@ -388,7 +406,13 @@ function CFODashboardPage() {
                             <TableCell>
                               {formatCurrency(expense.amount)}
                             </TableCell>
-                            <TableCell>{expense.description}</TableCell>
+                            <TableCell
+                              className={
+                                "max-w-[300px] whitespace-normal break-words"
+                              }
+                            >
+                              {expense.description}
+                            </TableCell>
                             <TableCell>{formatDate(expense.date)}</TableCell>
                             <TableCell>
                               <Button
@@ -485,7 +509,13 @@ function CFODashboardPage() {
                                   <TableCell>
                                     {formatCurrency(income.amount)}
                                   </TableCell>
-                                  <TableCell>{income.description}</TableCell>
+                                  <TableCell
+                                    className={
+                                      "max-w-[300px] whitespace-normal break-words"
+                                    }
+                                  >
+                                    {income.description}
+                                  </TableCell>
                                   <TableCell>
                                     {formatDate(income.date)}
                                   </TableCell>
@@ -533,7 +563,13 @@ function CFODashboardPage() {
                                   <TableCell>
                                     {formatCurrency(expense.amount)}
                                   </TableCell>
-                                  <TableCell>{expense.description}</TableCell>
+                                  <TableCell
+                                    className={
+                                      "max-w-[300px] whitespace-normal break-words"
+                                    }
+                                  >
+                                    {expense.description}
+                                  </TableCell>
                                   <TableCell>
                                     {formatDate(expense.date)}
                                   </TableCell>

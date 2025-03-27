@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import customFetch from "@/lib/fetch";
 import ProtectedRoute from "@/app/_components/protectedRoute";
 import { format } from "date-fns";
+import AiDialog from "@/app/_components/AiDialog";
 
 export default function AddTransactionPage({ params }) {
   const unwrappedParams = use(params);
@@ -90,6 +91,31 @@ export default function AddTransactionPage({ params }) {
     }
   };
 
+  // AI Dialog configuration
+  const InputPrompt =
+    "I will provide an input about a financial transaction. Using the input, generate a detailed description in JSON format. The description should explain the transaction in clear terms, including purpose, parties involved (if any), and any other relevant details.max 20 words Format: { description: 'detailed description here' }";
+  const DialogTitle = "Generate Transaction Description";
+  const placeholder =
+    "Describe the transaction (e.g., 'Payment for website design services from XYZ Company')";
+
+  // Callback function to receive data from AI dialog
+  const handleAiGeneratedData = (data) => {
+    try {
+      // Parse the JSON string if it's a string
+      const parsedData = typeof data === "string" ? JSON.parse(data) : data;
+
+      setFormData((prev) => ({
+        ...prev,
+        description: parsedData.description || prev.description,
+      }));
+
+      toast.success("AI-generated description applied");
+    } catch (error) {
+      console.error("Error parsing AI response:", error);
+      toast.error("Failed to apply AI-generated description");
+    }
+  };
+
   return (
     <ProtectedRoute>
       <div className="container mx-auto px-4 py-8">
@@ -115,8 +141,8 @@ export default function AddTransactionPage({ params }) {
             />
           </div>
 
-          {/* Description */}
-          <div>
+          {/* Description with AI assistant */}
+          <div className="relative">
             <Label htmlFor="description" className="mb-2">
               Description
             </Label>
@@ -182,6 +208,16 @@ export default function AddTransactionPage({ params }) {
             </Button>
           </div>
         </form>
+      </div>
+
+      {/* AI Dialog Floating Button */}
+      <div className="absolute bottom-4 right-4">
+        <AiDialog
+          inputPrompt={InputPrompt}
+          dialogTitle={DialogTitle}
+          placeholder={placeholder}
+          sendDataToParent={handleAiGeneratedData}
+        />
       </div>
     </ProtectedRoute>
   );
