@@ -35,7 +35,7 @@ function NewTaskPage() {
   const [date, setDate] = useState();
   const [formData, setFormData] = useState({
     taskName: "",
-    description: "", // Added description field
+    description: "",
     assignedTo: "",
     project: "",
     deadline: "",
@@ -103,15 +103,28 @@ function NewTaskPage() {
 
     try {
       setLoading(true);
+
+      // Prepare the request body
+      const requestBody = {
+        taskName: formData.taskName,
+        description: formData.description,
+        assignedTo: formData.assignedTo,
+        deadline: formData.deadline,
+        status: formData.status,
+        assignedBy: user._id,
+      };
+
+      // Only include project if it's not empty
+      if (formData.project) {
+        requestBody.project = formData.project;
+      }
+
       const response = await customFetch("/tasks", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          ...formData,
-          assignedBy: user._id,
-        }),
+        body: JSON.stringify(requestBody),
       });
 
       if (response) {
