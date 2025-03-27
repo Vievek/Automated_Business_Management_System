@@ -23,9 +23,7 @@ exports.createTask = async (req, res) => {
 // Get All Tasks
 exports.getTasks = async (req, res) => {
   try {
-    const tasks = await Task.find().populate(
-      "assignedBy assignedTo project notes"
-    );
+    const tasks = await Task.find().populate("assignedBy assignedTo project");
     res.status(200).json(tasks);
   } catch (error) {
     res.status(400).json({ error: error.message });
@@ -36,7 +34,7 @@ exports.getTasks = async (req, res) => {
 exports.getTaskById = async (req, res) => {
   try {
     const task = await Task.findById(req.params.id).populate(
-      "assignedBy assignedTo project "
+      "assignedBy assignedTo project"
     );
     if (!task) {
       return res.status(404).json({ message: "Task not found" });
@@ -52,7 +50,7 @@ exports.updateTask = async (req, res) => {
   try {
     const task = await Task.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
-    }).populate("assignedBy assignedTo project ");
+    }).populate("assignedBy assignedTo project");
     if (!task) {
       return res.status(404).json({ message: "Task not found" });
     }
@@ -89,7 +87,7 @@ exports.deleteTask = async (req, res) => {
 exports.getTasksByUserId = async (req, res) => {
   try {
     const tasks = await Task.find({ assignedTo: req.params.userId }).populate(
-      "assignedBy assignedTo project "
+      "assignedBy assignedTo project"
     );
     res.status(200).json(tasks);
   } catch (error) {
@@ -101,7 +99,7 @@ exports.getTasksByUserId = async (req, res) => {
 exports.getTasksByProjectId = async (req, res) => {
   try {
     const tasks = await Task.find({ project: req.params.projectId }).populate(
-      "assignedBy assignedTo project "
+      "assignedBy assignedTo project"
     );
     res.status(200).json(tasks);
   } catch (error) {
@@ -118,7 +116,7 @@ exports.searchTasks = async (req, res) => {
       return res.status(400).json({ error: "Keyword is required" });
     }
 
-    // Fetch all tasks and populate assignedBy, assignedTo, project, and notes
+    // Fetch all tasks and populate assignedBy, assignedTo, project
     const tasks = await Task.find()
       .populate("assignedBy", "username firstname lastname email role") // Populate assignedBy details
       .populate("assignedTo", "username firstname lastname email role") // Populate assignedTo details
@@ -209,7 +207,7 @@ exports.getTasksByProjectIdAndUserId = async (req, res) => {
     const tasks = await Task.find({
       project: req.params.projectId,
       assignedTo: req.params.userId,
-    }).populate("assignedBy assignedTo project ");
+    }).populate("assignedBy assignedTo project");
     res.status(200).json(tasks);
   } catch (error) {
     res.status(400).json({ error: error.message });
@@ -220,7 +218,7 @@ exports.getTasksByProjectIdAndUserId = async (req, res) => {
 exports.getTasksByAssignedById = async (req, res) => {
   try {
     const tasks = await Task.find({ assignedBy: req.params.userId }).populate(
-      "assignedBy assignedTo project "
+      "assignedBy assignedTo project"
     );
     res.status(200).json(tasks);
   } catch (error) {
@@ -232,7 +230,7 @@ exports.getTasksByAssignedById = async (req, res) => {
 exports.getTasksByAssignedToId = async (req, res) => {
   try {
     const tasks = await Task.find({ assignedTo: req.params.userId }).populate(
-      "assignedBy assignedTo project "
+      "assignedBy assignedTo project"
     );
     res.status(200).json(tasks);
   } catch (error) {

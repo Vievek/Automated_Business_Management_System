@@ -71,6 +71,7 @@ function TasksPage() {
     const results = allTasks.filter(
       (task) =>
         task.taskName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        task.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         task.assignedBy?.username
           ?.toLowerCase()
           .includes(searchQuery.toLowerCase()) ||
@@ -119,6 +120,9 @@ function TasksPage() {
     return data.map((task) => (
       <TableRow key={task._id}>
         <TableCell>{task.taskName}</TableCell>
+        <TableCell className="max-w-[300px] whitespace-normal break-words">
+          {task.description}
+        </TableCell>
         <TableCell>
           {showAssignedBy
             ? task.assignedBy?.username
@@ -132,10 +136,7 @@ function TasksPage() {
             : "No deadline"}
         </TableCell>
         <TableCell>
-          {task.notes?.length || 0} note{task.notes?.length !== 1 ? "s" : ""}
-        </TableCell>
-        <TableCell>
-          <Link href={`/authenticated/common/tasks/taskById/${task._id}`}>
+          <Link href={`/authenticated/common/task/taskById/${task._id}`}>
             <Button variant="ghost" size="icon">
               <Eye className="h-4 w-4" />
             </Button>
@@ -171,11 +172,11 @@ function TasksPage() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Task Name</TableHead>
+                  <TableHead>Description</TableHead>
                   <TableHead>Related User</TableHead>
                   <TableHead>Project</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Deadline</TableHead>
-                  <TableHead>Notes</TableHead>
                   <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -205,11 +206,11 @@ function TasksPage() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Task Name</TableHead>
+                    <TableHead>Description</TableHead>
                     <TableHead>Assigned By</TableHead>
                     <TableHead>Project</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Deadline</TableHead>
-                    <TableHead>Notes</TableHead>
                     <TableHead>Actions</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -222,11 +223,11 @@ function TasksPage() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Task Name</TableHead>
+                    <TableHead>Description</TableHead>
                     <TableHead>Assigned To</TableHead>
                     <TableHead>Project</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Deadline</TableHead>
-                    <TableHead>Notes</TableHead>
                     <TableHead>Actions</TableHead>
                   </TableRow>
                 </TableHeader>

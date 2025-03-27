@@ -35,6 +35,7 @@ function NewTaskPage() {
   const [date, setDate] = useState();
   const [formData, setFormData] = useState({
     taskName: "",
+    description: "", // Added description field
     assignedTo: "",
     project: "",
     deadline: "",
@@ -92,6 +93,11 @@ function NewTaskPage() {
 
     if (!formData.deadline) {
       toast.error("Please select a deadline");
+      return;
+    }
+
+    if (!formData.description) {
+      toast.error("Please provide a description");
       return;
     }
 
@@ -167,6 +173,19 @@ function NewTaskPage() {
               value={formData.taskName}
               onChange={handleChange}
               required
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="description">Description</Label>
+            <Textarea
+              id="description"
+              name="description"
+              value={formData.description}
+              onChange={handleChange}
+              required
+              rows={5}
+              placeholder="Describe the task details..."
             />
           </div>
 
