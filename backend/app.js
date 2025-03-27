@@ -55,7 +55,7 @@ app.use("/api/notes", noteRoutes);
 app.use("/api/researches", researchRoutes);
 app.use("/api/issues", issueRoutes);
 app.use("/api/income", incomeRoutes);
-app.use("/api/expenses", expenseRoutes);
+app.use("/api/expense", expenseRoutes);
 app.use("/api/salaries", salaryRoutes);
 app.use("/api/backlogs", backlogRoutes);
 app.use("/api/questions", questionRoutes);

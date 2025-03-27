@@ -87,14 +87,13 @@ exports.updateExpense = async (req, res) => {
 };
 
 // Delete Expense
+// Delete Expense
 exports.deleteExpense = async (req, res) => {
   try {
-    const expense = await Expense.findById(req.params.id);
+    const expense = await Expense.findByIdAndDelete(req.params.id);
     if (!expense) {
       return res.status(404).json({ message: "Expense not found" });
     }
-
-    await expense.remove();
 
     res.status(200).json({ message: "Expense deleted successfully" });
   } catch (error) {

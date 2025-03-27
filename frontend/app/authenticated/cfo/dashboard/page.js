@@ -80,7 +80,7 @@ function CFODashboardPage() {
 
       const [incomes, expenses, projectsData] = await Promise.all([
         customFetch("/income"),
-        customFetch("/expenses"),
+        customFetch("/expense"),
         customFetch("/projects/projects"),
       ]);
 
@@ -123,7 +123,7 @@ function CFODashboardPage() {
   };
 
   const handleViewDetails = (type, id) => {
-    router.push(`/authenticated/cfo/${type}/${id}`);
+    router.push(`/authenticated/cfo/transaction/${type}/${id}`);
   };
 
   const formatCurrency = (amount) => {
