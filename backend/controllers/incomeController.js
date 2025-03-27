@@ -1,5 +1,6 @@
 const Income = require("../models/Income");
 const FinancialSummary = require("../models/FinancialSummary");
+const Expense = require("../models/Expense");
 
 // Helper function to update financial summary
 const updateFinancialSummary = async (projectId) => {
