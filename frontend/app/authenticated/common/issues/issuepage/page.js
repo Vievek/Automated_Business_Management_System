@@ -18,6 +18,7 @@ import ProtectedRoute from "@/app/_components/protectedRoute";
 import useAuthStore from "@/stores/authStore";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { Eye } from "lucide-react";
 
 function IssuesPage() {
   const { user, fetchUser } = useAuthStore();
@@ -107,7 +108,9 @@ function IssuesPage() {
     return data.map((issue) => (
       <TableRow key={issue._id}>
         <TableCell>{issue.issueName}</TableCell>
-        <TableCell>{issue.details}</TableCell>
+        <TableCell className="max-w-[400px] whitespace-normal break-words">
+          {issue.details}
+        </TableCell>
         <TableCell>
           {type === "toMe" ? issue.raisedBy.username : issue.raisedTo.username}
         </TableCell>
@@ -115,6 +118,13 @@ function IssuesPage() {
           {getStatusBadge(issue.notedStatus, issue.resolvedStatus)}
         </TableCell>
         <TableCell>{format(new Date(issue.createdAt), "PPP")}</TableCell>
+        <TableCell>
+          <Link href={`/authenticated/common/issues/issueById/${issue._id}`}>
+            <Button variant="ghost" size="icon">
+              <Eye className="h-4 w-4" />
+            </Button>
+          </Link>
+        </TableCell>
       </TableRow>
     ));
   };
@@ -141,6 +151,7 @@ function IssuesPage() {
                   <TableHead>Raised By</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Created At</TableHead>
+                  <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>{renderTable(issues.toMe, "toMe")}</TableBody>
@@ -156,6 +167,7 @@ function IssuesPage() {
                   <TableHead>Raised To</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Created At</TableHead>
+                  <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>{renderTable(issues.byMe, "byMe")}</TableBody>
