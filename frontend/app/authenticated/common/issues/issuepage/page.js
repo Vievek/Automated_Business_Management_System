@@ -16,6 +16,8 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import ProtectedRoute from "@/app/_components/protectedRoute";
 import useAuthStore from "@/stores/authStore";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 function IssuesPage() {
   const { user, fetchUser } = useAuthStore();
@@ -161,6 +163,12 @@ function IssuesPage() {
           </TabsContent>
         </Tabs>
       </div>
+      <Link
+        href="/authenticated/common/issues/newIssue"
+        className="fixed bottom-4 right-4"
+      >
+        <Button>New Issue</Button>
+      </Link>
     </ProtectedRoute>
   );
 }

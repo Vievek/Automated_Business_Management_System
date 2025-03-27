@@ -17,12 +17,7 @@ router.post(
   userController.register
 );
 
-router.get(
-  "/users",
-  authMiddleware,
-  abacMiddleware("/users", "GET"),
-  userController.getAllUsers
-);
+router.get("/users", authMiddleware, userController.getAllUsers);
 
 router.get("/profile", authMiddleware, userController.getUserProfile);
 

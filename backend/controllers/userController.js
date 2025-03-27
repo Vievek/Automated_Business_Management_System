@@ -84,12 +84,10 @@ exports.login = async (req, res) => {
 exports.getAllUsers = async (req, res) => {
   try {
     const users = await User.find()
-      .populate("projects")
-      .populate("workingProject")
-      .populate("teams")
-      .populate("tasks")
-      .populate("researches")
-      .populate("notes");
+      .select("_id username role") // Only get necessary fields
+      .sort({ role: 1, username: 1 }) // Sort by role then by username
+      .lean(); // Convert to plain JavaScript object
+
     res.json(users);
   } catch (err) {
     res.status(400).json({ error: err.message });
