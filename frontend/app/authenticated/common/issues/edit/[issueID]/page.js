@@ -139,7 +139,9 @@ export default function EditIssuePage({ params }) {
           {/* Issue Name - Editable by creator */}
           {isCreator && (
             <div>
-              <Label htmlFor="issueName">Issue Name</Label>
+              <Label htmlFor="issueName" className={"mb-2"}>
+                Issue Name
+              </Label>
               <Input
                 id="issueName"
                 name="issueName"
@@ -151,7 +153,9 @@ export default function EditIssuePage({ params }) {
           )}
 
           <div>
-            <Label htmlFor="details">Details</Label>
+            <Label htmlFor="details" className={"mb-2"}>
+              Details
+            </Label>
             <Textarea
               id="details"
               name="details"
@@ -165,7 +169,7 @@ export default function EditIssuePage({ params }) {
           {/* Status Checkboxes - Editable by recipient */}
           {isRecipient && (
             <div className="space-y-2">
-              <Label>Status</Label>
+              <Label className={"mb-2"}>Status</Label>
               <div className="flex items-center space-x-2">
                 <Checkbox
                   id="notedStatus"
@@ -174,7 +178,7 @@ export default function EditIssuePage({ params }) {
                 />
                 <label
                   htmlFor="notedStatus"
-                  className="text-sm font-medium leading-none"
+                  className="text-sm font-medium leading-none "
                 >
                   Noted
                 </label>

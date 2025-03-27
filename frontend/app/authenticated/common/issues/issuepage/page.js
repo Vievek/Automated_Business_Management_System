@@ -18,21 +18,19 @@ import ProtectedRoute from "@/app/_components/protectedRoute";
 import useAuthStore from "@/stores/authStore";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Eye } from "lucide-react";
+import { Eye, Search } from "lucide-react";
+import { Input } from "@/components/ui/input";
 
 function IssuesPage() {
   const { user, fetchUser } = useAuthStore();
   const [issues, setIssues] = useState({ toMe: [], byMe: [] });
   const [loading, setLoading] = useState(true);
-
-  console.log("1. Initial render - user state:", user);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
 
   useEffect(() => {
-    console.log("2. useEffect triggered - current user:", user);
-
     const loadData = async () => {
       if (!user) {
-        console.log("3. No user found - fetching user...");
         try {
           await fetchUser();
         } catch (error) {
@@ -42,51 +40,59 @@ function IssuesPage() {
       }
 
       try {
-        console.log("4. Fetching issues for user ID:", user._id);
         setLoading(true);
-
         const [toMeResponse, byMeResponse] = await Promise.all([
           customFetch(`/issues/issues/raisedTo/${user._id}`),
           customFetch(`/issues/issues/raisedBy/${user._id}`),
         ]);
-
-        console.log(
-          "5. API responses - toMe:",
-          toMeResponse,
-          "byMe:",
-          byMeResponse
-        );
 
         setIssues({
           toMe: toMeResponse || [],
           byMe: byMeResponse || [],
         });
       } catch (error) {
-        console.error("6. Error fetching issues:", error);
+        console.error("Error fetching issues:", error);
         toast.error("Failed to load issues");
       } finally {
         setLoading(false);
-        console.log("7. Finished loading issues");
       }
     };
 
     loadData();
-  }, [user, fetchUser]); // Added fetchUser to dependencies
+  }, [user, fetchUser]);
+
+  useEffect(() => {
+    if (searchQuery.trim() === "") {
+      setSearchResults([]);
+      return;
+    }
+
+    const allIssues = [...issues.toMe, ...issues.byMe];
+    const results = allIssues.filter(
+      (issue) =>
+        issue.issueName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        issue.details.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        issue.raisedBy?.username
+          ?.toLowerCase()
+          .includes(searchQuery.toLowerCase()) ||
+        issue.raisedTo?.username
+          ?.toLowerCase()
+          .includes(searchQuery.toLowerCase())
+    );
+    setSearchResults(results);
+  }, [searchQuery, issues]);
 
   const getStatusBadge = (noted, resolved) => {
-    console.log("Rendering status badge for:", { noted, resolved });
     if (resolved) return <Badge variant="success">Resolved</Badge>;
     if (noted) return <Badge variant="secondary">Noted</Badge>;
     return <Badge variant="destructive">Pending</Badge>;
   };
 
-  const renderTable = (data, type) => {
-    console.log(`Rendering ${type} table with ${data.length} items`);
-
+  const renderTable = (data, showRaisedBy = true) => {
     if (loading) {
       return (
         <TableRow>
-          <TableCell colSpan={5}>
+          <TableCell colSpan={6}>
             <Skeleton className="h-12 w-full" />
           </TableCell>
         </TableRow>
@@ -96,10 +102,8 @@ function IssuesPage() {
     if (data.length === 0) {
       return (
         <TableRow>
-          <TableCell colSpan={5} className="text-center py-8">
-            {type === "toMe"
-              ? "No issues raised to you"
-              : "You haven't raised any issues"}
+          <TableCell colSpan={6} className="text-center py-8">
+            No issues found
           </TableCell>
         </TableRow>
       );
@@ -112,7 +116,7 @@ function IssuesPage() {
           {issue.details}
         </TableCell>
         <TableCell>
-          {type === "toMe" ? issue.raisedBy.username : issue.raisedTo.username}
+          {showRaisedBy ? issue.raisedBy?.username : issue.raisedTo?.username}
         </TableCell>
         <TableCell>
           {getStatusBadge(issue.notedStatus, issue.resolvedStatus)}
@@ -129,51 +133,93 @@ function IssuesPage() {
     ));
   };
 
-  console.log("8. Component render - current state:", { issues, loading });
-
   return (
     <ProtectedRoute>
       <div className="container mx-auto px-4 py-8">
-        <h1 className="text-2xl font-bold mb-6">Issue Tracking</h1>
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold">Issue Tracking</h1>
+          <div className="relative w-64">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              type="search"
+              placeholder="Search issues..."
+              className="pl-10"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+        </div>
 
-        <Tabs defaultValue="raisedToMe">
-          <TabsList>
-            <TabsTrigger value="raisedToMe">Raised To Me</TabsTrigger>
-            <TabsTrigger value="raisedByMe">Raised By Me</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="raisedToMe">
+        {searchQuery ? (
+          <div>
+            <h2 className="text-lg font-semibold mb-4">
+              Search Results for "{searchQuery}"
+            </h2>
             <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>Issue Name</TableHead>
                   <TableHead>Details</TableHead>
-                  <TableHead>Raised By</TableHead>
+                  <TableHead>Related User</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Created At</TableHead>
                   <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
-              <TableBody>{renderTable(issues.toMe, "toMe")}</TableBody>
+              <TableBody>
+                {renderTable(
+                  searchResults,
+                  searchQuery.includes(
+                    issues.toMe.some((issue) =>
+                      issue.raisedBy?.username
+                        ?.toLowerCase()
+                        .includes(searchQuery.toLowerCase())
+                    )
+                  )
+                )}
+              </TableBody>
             </Table>
-          </TabsContent>
+          </div>
+        ) : (
+          <Tabs defaultValue="raisedToMe">
+            <TabsList>
+              <TabsTrigger value="raisedToMe">Raised To Me</TabsTrigger>
+              <TabsTrigger value="raisedByMe">Raised By Me</TabsTrigger>
+            </TabsList>
 
-          <TabsContent value="raisedByMe">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Issue Name</TableHead>
-                  <TableHead>Details</TableHead>
-                  <TableHead>Raised To</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Created At</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>{renderTable(issues.byMe, "byMe")}</TableBody>
-            </Table>
-          </TabsContent>
-        </Tabs>
+            <TabsContent value="raisedToMe">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Issue Name</TableHead>
+                    <TableHead>Details</TableHead>
+                    <TableHead>Raised By</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Created At</TableHead>
+                    <TableHead>Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>{renderTable(issues.toMe, true)}</TableBody>
+              </Table>
+            </TabsContent>
+
+            <TabsContent value="raisedByMe">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Issue Name</TableHead>
+                    <TableHead>Details</TableHead>
+                    <TableHead>Raised To</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Created At</TableHead>
+                    <TableHead>Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>{renderTable(issues.byMe, false)}</TableBody>
+              </Table>
+            </TabsContent>
+          </Tabs>
+        )}
       </div>
       <Link
         href="/authenticated/common/issues/newIssue"
