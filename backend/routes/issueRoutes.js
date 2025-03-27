@@ -31,7 +31,7 @@ router.get(
 router.put("/issues/:id", authMiddleware, issueController.updateIssue);
 
 // Delete an issue
-router.delete("/:id", authMiddleware, issueController.deleteIssue);
+router.delete("/issues/:id", authMiddleware, issueController.deleteIssue);
 
 // Search issues
 router.get("/issues/search", authMiddleware, issueController.searchIssues);

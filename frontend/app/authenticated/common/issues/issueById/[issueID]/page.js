@@ -8,38 +8,67 @@ import customFetch from "@/lib/fetch";
 import { toast } from "sonner";
 import ProtectedRoute from "@/app/_components/protectedRoute";
 import useAuthStore from "@/stores/authStore";
+import { Trash2, Edit } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export default function IssueDetailsPage({ params }) {
   const unwrappedParams = use(params);
+  const issueID = unwrappedParams.issueID;
   const router = useRouter();
   const { user } = useAuthStore();
   const [issue, setIssue] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     const fetchIssue = async () => {
       try {
         setLoading(true);
-        const response = await customFetch(
-          `/issues/issues/${unwrappedParams.issueID}`
-        );
+        const response = await customFetch(`/issues/issues/${issueID}`);
         setIssue(response);
       } catch (error) {
         console.error("Error fetching issue:", error);
         toast.error("Failed to load issue");
-        router.push("/authenticated/common/issues");
+        router.push("/authenticated/common/issues/issuepage");
       } finally {
         setLoading(false);
       }
     };
 
     fetchIssue();
-  }, [unwrappedParams.issueID, router]);
+  }, [issueID, router]);
 
   const getStatusBadge = (noted, resolved) => {
     if (resolved) return <Badge variant="success">Resolved</Badge>;
     if (noted) return <Badge variant="secondary">Noted</Badge>;
     return <Badge variant="destructive">Pending</Badge>;
+  };
+
+  const handleDelete = async () => {
+    try {
+      setIsDeleting(true);
+      await customFetch(`/issues/issues/${issueID}`, {
+        method: "DELETE",
+      });
+      toast.success("Issue deleted successfully");
+      router.push("/authenticated/common/issues/issuepage");
+    } catch (error) {
+      console.error("Error deleting issue:", error);
+      toast.error("Failed to delete issue");
+    } finally {
+      setIsDeleting(false);
+      setDeleteDialogOpen(false);
+    }
   };
 
   if (loading) {
@@ -71,10 +100,15 @@ export default function IssueDetailsPage({ params }) {
       <div className="container mx-auto px-4 py-8">
         <div className="flex justify-between items-start mb-6">
           <div>
-            <h1 className="text-2xl font-bold">{issue.issueName}</h1>
-            <p className="text-muted-foreground">
-              Created on {format(new Date(issue.createdAt), "PPP")}
-            </p>
+            <h1 className="text-2xl font-bold mb-10">{issue.issueName}</h1>
+            <div className="text-muted-foreground space-y-1">
+              <p>Created on {format(new Date(issue.createdAt), "PPPp")}</p>
+              {issue.updatedAt && issue.updatedAt !== issue.createdAt && (
+                <p>
+                  Last updated on {format(new Date(issue.updatedAt), "PPPp")}
+                </p>
+              )}
+            </div>
           </div>
           <div>{getStatusBadge(issue.notedStatus, issue.resolvedStatus)}</div>
         </div>
@@ -106,10 +140,53 @@ export default function IssueDetailsPage({ params }) {
             >
               Back to Issues
             </Button>
-            {user._id === issue.raisedTo._id && <Button>Mark as Noted</Button>}
+
+            <Button
+              variant="outline"
+              onClick={() =>
+                router.push(`/authenticated/common/issues/edit/${issueID}`)
+              }
+            >
+              <Edit className="h-4 w-4 mr-2" />
+              Edit
+            </Button>
+
+            {/* Delete Button - Only shown to the issue creator */}
+            {user._id === issue.raisedBy._id && (
+              <Button
+                variant="destructive"
+                onClick={() => setDeleteDialogOpen(true)}
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                Delete
+              </Button>
+            )}
           </div>
         </div>
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the
+              issue.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              disabled={isDeleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {isDeleting ? "Deleting..." : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </ProtectedRoute>
   );
 }
