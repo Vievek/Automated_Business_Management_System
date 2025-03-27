@@ -148,12 +148,12 @@ function CFODashboardPage() {
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold">Financial Dashboard</h1>
           <div className="flex gap-2">
-            <Link href="/authenticated/cfo/add-income">
+            <Link href="/authenticated/cfo/add/income">
               <Button className="flex items-center gap-2">
                 <Plus size={16} /> Add Income
               </Button>
             </Link>
-            <Link href="/authenticated/cfo/add-expense">
+            <Link href="/authenticated/cfo/add/expense">
               <Button className="flex items-center gap-2">
                 <Plus size={16} /> Add Expense
               </Button>
