@@ -313,16 +313,12 @@ function ProjectNotesPage({ params }) {
               <TabsTrigger value="backlogs">Backlogs</TabsTrigger>
             </TabsList>
             <div className="flex gap-2">
-              <Link href={`/authenticated/projects/${projectId}/new-note`}>
+              <Link
+                href={`/authenticated/common/${activeTab}/add/${projectId}/${user._id}`}
+              >
                 <Button>
-                  <Plus className="mr-2 h-4 w-4" />
+                  <Plus className="mr-1 h-4 w-4" />
                   Add {activeTab === "notes" ? "Note" : "Backlog"}
-                </Button>
-              </Link>
-              <Link href={`/authenticated/projects/${projectId}/add-member`}>
-                <Button variant="outline">
-                  <Plus className="mr-2 h-4 w-4" />
-                  Add Member
                 </Button>
               </Link>
             </div>
