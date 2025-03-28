@@ -85,7 +85,7 @@ function ProjectsPage() {
             <p className="text-muted-foreground mb-6">
               You haven't been added to any projects yet
             </p>
-            <Link href="/authenticated/projects/new">
+            <Link href="/authenticated/common/project/new">
               <Button>
                 <Plus className="mr-2 h-4 w-4" />
                 Create your first project
