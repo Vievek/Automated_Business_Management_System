@@ -235,7 +235,7 @@ function ProjectNotesPage({ params }) {
             <Card
               className="p-4 flex flex-col items-center justify-center cursor-pointer hover:bg-accent transition-colors"
               onClick={() =>
-                router.push(`/authenticated/projects/${projectId}/srs`)
+                router.push(`/authenticated/common/project/srs/${projectId}`)
               }
             >
               <FileText className="h-8 w-8 mb-2" />

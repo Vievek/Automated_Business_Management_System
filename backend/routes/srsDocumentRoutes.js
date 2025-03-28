@@ -2,19 +2,19 @@ const express = require("express");
 const router = express.Router();
 const srsDocumentController = require("../controllers/srsDocumentController");
 
-// Create an SRS document
-router.post("/", srsDocumentController.createSRSDocument);
+// Create or Update SRS document
+router.post("/", srsDocumentController.createOrUpdateSRSDocument);
 
-// Get an SRS document for a project
-router.get(
-  "/projects/:projectId/srs-documents",
-  srsDocumentController.getProjectSRSDocument
+// Get SRS document for a project
+router.get("/projects/:projectId", srsDocumentController.getProjectSRSDocument);
+
+// Generate SRS from questions
+router.post(
+  "/projects/:projectId/generate",
+  srsDocumentController.generateSRSFromQuestions
 );
 
-// Update an SRS document
-router.put("/:id", srsDocumentController.updateSRSDocument);
-
-// Delete an SRS document
+// Delete SRS document
 router.delete("/:id", srsDocumentController.deleteSRSDocument);
 
 module.exports = router;
