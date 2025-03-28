@@ -32,6 +32,7 @@ function ProjectNotesPage({ params }) {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("notes");
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     const loadData = async () => {
@@ -65,6 +66,58 @@ function ProjectNotesPage({ params }) {
 
     loadData();
   }, [user, fetchUser, projectId]);
+
+  const showDeleteConfirmation = () => {
+    toast.custom(
+      (t) => (
+        <div className="bg-background border rounded-lg p-4 shadow-lg w-full max-w-md">
+          <h3 className="font-medium mb-2">Confirm Deletion</h3>
+          <p className="text-sm text-muted-foreground mb-4">
+            Are you sure you want to delete this project? This action cannot be
+            undone.
+          </p>
+          <div className="flex justify-end gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => toast.dismiss(t)}
+              disabled={isDeleting}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={() => {
+                handleDeleteProject();
+                toast.dismiss(t);
+              }}
+              disabled={isDeleting}
+            >
+              {isDeleting ? "Deleting..." : "Confirm Delete"}
+            </Button>
+          </div>
+        </div>
+      ),
+      { duration: Infinity }
+    );
+  };
+
+  const handleDeleteProject = async () => {
+    setIsDeleting(true);
+    try {
+      await customFetch(`/projects/projects/${projectId}`, {
+        method: "DELETE",
+      });
+      toast.success("Project deleted successfully");
+      router.push("/authenticated/common/project/dashboard");
+    } catch (error) {
+      console.error("Error deleting project:", error);
+      toast.error("Failed to delete project");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   const filteredNotes = notes.filter(
     (note) =>
@@ -323,6 +376,34 @@ function ProjectNotesPage({ params }) {
             </div>
           </div>
         )}
+
+        <div className="mt-8 flex justify-end gap-4">
+          <Button
+            variant="ghost"
+            onClick={() =>
+              router.push("/authenticated/common/project/dashboard")
+            }
+            disabled={isDeleting}
+          >
+            Back to Dashboard
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() =>
+              router.push(`/authenticated/common/project/edit/${projectId}`)
+            }
+            disabled={isDeleting}
+          >
+            Edit Project
+          </Button>
+          <Button
+            variant="destructive"
+            onClick={showDeleteConfirmation}
+            disabled={isDeleting || loading} // Disable if either loading state is true
+          >
+            {isDeleting ? "Deleting..." : "Delete Project"}
+          </Button>
+        </div>
       </div>
     </ProtectedRoute>
   );
