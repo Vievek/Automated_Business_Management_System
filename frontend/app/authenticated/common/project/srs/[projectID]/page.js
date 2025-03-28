@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, use } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -12,7 +12,8 @@ import { Edit, Check, X, ArrowLeft, FileText } from "lucide-react";
 import AiGenerator from "@/app/_components/AiGenerator";
 
 function ProjectSRSPage({ params }) {
-  const { projectID: projectId } = params;
+  const wrappedParams = use(params);
+  const projectId = wrappedParams.projectID;
   const router = useRouter();
   const { user } = useAuthStore();
   const [srsDocument, setSrsDocument] = useState(null);
@@ -27,30 +28,45 @@ function ProjectSRSPage({ params }) {
       try {
         setLoading(true);
 
-        const srsRes = await customFetch(
-          `/srs-documents/projects/${projectId}`
-        );
+        // Fetch questions first
         const questionsRes = await customFetch(
           `/questions/project/${projectId}`
         );
+        console.log("questionsRes:", questionsRes);
+        // Process questions with answers
         const questionsWithAnswers = await Promise.all(
-          questionsRes?.map(async (question) => {
+          questionsRes.map(async (question) => {
             const answers = await customFetch(
-              `/questions/${question.id}/answers`
-            );
+              `/answers/questions/${question._id}/answers`
+            ); // Changed endpoint
             return {
-              ...question,
-              answers: answers || [],
+              _id: question._id,
+              text: question.content, // Using 'content' from model
+              answers: answers.map((a) => ({
+                text: a.content, // Using 'content' from model
+              })),
             };
-          }) || []
+          })
         );
-
-        setSrsDocument(srsRes);
+        console.log("questionsWithAnswers:", questionsWithAnswers);
         setQuestionsWithAnswers(questionsWithAnswers);
-        setContent(srsRes?.content || "");
+
+        // Check for existing SRS (but don't block on this)
+        try {
+          const srsRes = await customFetch(
+            `/srs-documents/projects/${projectId}`
+          );
+          if (srsRes) {
+            setContent(srsRes.content);
+            setHasExistingSRS(true);
+          }
+        } catch (srsError) {
+          // It's okay if there's no SRS yet
+          console.log("No existing SRS document found");
+        }
       } catch (error) {
         console.error("Error fetching data:", error);
-        toast.error("Failed to load SRS data");
+        toast.error("Failed to load project data");
       } finally {
         setLoading(false);
       }
@@ -88,9 +104,9 @@ function ProjectSRSPage({ params }) {
           questionsWithAnswers
             .map(
               (q) =>
-                `### ${q.text}\n\n` +
+                `### ${q.text}\n\n` + // Now properly mapped to question.content
                 (q.answers.length > 0
-                  ? q.answers.map((a) => `- ${a.text}`).join("\n") + "\n"
+                  ? q.answers.map((a) => `- ${a.text}`).join("\n") + "\n" // Now properly mapped to answer.content
                   : "No answers provided yet\n")
             )
             .join("\n")
