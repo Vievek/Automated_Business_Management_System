@@ -3,8 +3,8 @@ const Answer = require("../models/Answer");
 // Create an Answer
 exports.createAnswer = async (req, res) => {
   try {
-    const { content, questionId } = req.body;
-    const answer = new Answer({ content, question: questionId });
+    const { content, question } = req.body;
+    const answer = new Answer({ content, question });
     await answer.save();
     res.status(201).json(answer);
   } catch (error) {

@@ -1,14 +1,28 @@
 const Question = require("../models/Question");
+const mongoose = require("mongoose");
 
 // Create a Question
 exports.createQuestion = async (req, res) => {
   try {
-    const { content, projectId } = req.body;
-    const question = new Question({ content, project: projectId });
+    const { content, project } = req.body;
+
+    // Validate project ID format
+    if (!mongoose.Types.ObjectId.isValid(project)) {
+      return res.status(400).json({ error: "Invalid project ID format" });
+    }
+
+    const question = new Question({
+      content,
+      project: new mongoose.Types.ObjectId(project), // Explicit conversion
+    });
+
     await question.save();
     res.status(201).json(question);
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    res.status(400).json({
+      error: error.message,
+      details: error.errors, // This will show validation details
+    });
   }
 };
 
