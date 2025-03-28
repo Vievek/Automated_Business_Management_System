@@ -1,5 +1,6 @@
 const Project = require("../models/Project");
 const User = require("../models/User");
+const mongoose = require("mongoose");
 
 // Complete user population configuration
 const populateUser = {
@@ -109,13 +110,37 @@ exports.deleteProject = async (req, res) => {
       return res.status(404).json({ message: "Project not found" });
     }
 
-    // Option 1: Using deleteOne() (preferred)
-    await Project.deleteOne({ _id: req.params.projectId });
+    // Get all related data first
+    const relatedData = await Promise.all([
+      mongoose.model("Quotation").findOne({ project: project._id }),
+      mongoose.model("Question").find({ project: project._id }),
+      mongoose.model("SRSDocument").findOne({ project: project._id }),
+      mongoose.model("Backlog").find({ project: project._id }),
+      mongoose.model("Task").find({ project: project._id }),
+    ]);
 
-    // Option 2: Using remove() with exec()
-    // await project.deleteOne().exec();
+    // Delete the project (this will trigger the pre-remove hook)
+    await project.deleteOne();
 
-    res.json({ message: "Project deleted successfully" });
+    // Delete all related data
+    await Promise.all([
+      mongoose.model("Quotation").deleteMany({ project: project._id }),
+      mongoose.model("Question").deleteMany({ project: project._id }),
+      mongoose.model("SRSDocument").deleteMany({ project: project._id }),
+      mongoose.model("Backlog").deleteMany({ project: project._id }),
+      mongoose.model("Task").deleteMany({ project: project._id }),
+    ]);
+
+    res.json({
+      message: "Project and all related data deleted successfully",
+      deletedCounts: {
+        quotations: relatedData[0] ? 1 : 0,
+        questions: relatedData[1].length,
+        srsDocuments: relatedData[2] ? 1 : 0,
+        backlogs: relatedData[3].length,
+        tasks: relatedData[4].length,
+      },
+    });
   } catch (err) {
     res.status(400).json({ error: err.message });
   }

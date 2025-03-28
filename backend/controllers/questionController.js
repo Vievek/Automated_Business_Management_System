@@ -43,11 +43,17 @@ exports.updateQuestion = async (req, res) => {
 // Delete a Question
 exports.deleteQuestion = async (req, res) => {
   try {
-    const question = await Question.findByIdAndDelete(req.params.id);
+    const question = await Question.findById(req.params.id);
     if (!question) {
       return res.status(404).json({ message: "Question not found" });
     }
-    res.status(200).json({ message: "Question deleted successfully" });
+
+    // This will trigger the pre-remove hook to delete answers
+    await question.deleteOne();
+
+    res
+      .status(200)
+      .json({ message: "Question and its answers deleted successfully" });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
