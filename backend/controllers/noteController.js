@@ -1,23 +1,27 @@
 const Note = require("../models/Note");
+const User = require("../models/User");
+const Project = require("../models/Project");
+const Research = require("../models/Research");
 
 // Create Note
 exports.createNote = async (req, res) => {
   try {
-    const note = new Note(req.body);
+    const { title, content, project, research, createdBy } = req.body;
+
+    const note = new Note({
+      title,
+      content,
+      project,
+      research,
+      createdBy,
+    });
+
     await note.save();
 
-    // Add the note to the users' notes array
-    if (note.users && note.users.length > 0) {
-      for (const userId of note.users) {
-        const user = await User.findById(userId);
-        if (user) {
-          user.notes.push(note._id);
-          await user.save();
-        }
-      }
-    }
+    // Populate the createdBy user field before returning
+    const populatedNote = await Note.findById(note._id).populate("createdBy");
 
-    res.status(201).json(note);
+    res.status(201).json(populatedNote);
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
@@ -26,7 +30,7 @@ exports.createNote = async (req, res) => {
 // Get All Notes
 exports.getNotes = async (req, res) => {
   try {
-    const notes = await Note.find().populate("task project research users");
+    const notes = await Note.find().populate("project research createdBy");
     res.status(200).json(notes);
   } catch (error) {
     res.status(400).json({ error: error.message });
@@ -37,8 +41,9 @@ exports.getNotes = async (req, res) => {
 exports.getNoteById = async (req, res) => {
   try {
     const note = await Note.findById(req.params.id).populate(
-      "task project research users"
+      "project research createdBy"
     );
+
     if (!note) {
       return res.status(404).json({ message: "Note not found" });
     }
@@ -51,30 +56,16 @@ exports.getNoteById = async (req, res) => {
 // Update Note
 exports.updateNote = async (req, res) => {
   try {
-    const note = await Note.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-    }).populate("task project research users");
+    const { title, content } = req.body;
+
+    const note = await Note.findByIdAndUpdate(
+      req.params.id,
+      { title, content },
+      { new: true }
+    ).populate("project research createdBy");
+
     if (!note) {
       return res.status(404).json({ message: "Note not found" });
-    }
-
-    // Update users' notes array if users are modified
-    if (req.body.users) {
-      const oldUsers = await User.find({ notes: note._id });
-      for (const user of oldUsers) {
-        user.notes = user.notes.filter(
-          (noteId) => noteId.toString() !== note._id.toString()
-        );
-        await user.save();
-      }
-
-      for (const userId of req.body.users) {
-        const user = await User.findById(userId);
-        if (user) {
-          user.notes.push(note._id);
-          await user.save();
-        }
-      }
     }
 
     res.status(200).json(note);
@@ -87,44 +78,12 @@ exports.updateNote = async (req, res) => {
 exports.deleteNote = async (req, res) => {
   try {
     const note = await Note.findByIdAndDelete(req.params.id);
+
     if (!note) {
       return res.status(404).json({ message: "Note not found" });
     }
 
-    // Remove the note from the users' notes array
-    const users = await User.find({ notes: note._id });
-    for (const user of users) {
-      user.notes = user.notes.filter(
-        (noteId) => noteId.toString() !== note._id.toString()
-      );
-      await user.save();
-    }
-
     res.status(200).json({ message: "Note deleted successfully" });
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-};
-
-// Get Notes by User ID
-exports.getNotesByUserId = async (req, res) => {
-  try {
-    const notes = await Note.find({ users: req.params.userId }).populate(
-      "task project research"
-    );
-    res.status(200).json(notes);
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-};
-
-// Get Notes by Task ID
-exports.getNotesByTaskId = async (req, res) => {
-  try {
-    const notes = await Note.find({ task: req.params.taskId }).populate(
-      "task project research"
-    );
-    res.status(200).json(notes);
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
@@ -134,8 +93,9 @@ exports.getNotesByTaskId = async (req, res) => {
 exports.getNotesByProjectId = async (req, res) => {
   try {
     const notes = await Note.find({ project: req.params.projectId }).populate(
-      "task project research"
+      "research createdBy"
     );
+
     res.status(200).json(notes);
   } catch (error) {
     res.status(400).json({ error: error.message });
@@ -146,8 +106,22 @@ exports.getNotesByProjectId = async (req, res) => {
 exports.getNotesByResearchId = async (req, res) => {
   try {
     const notes = await Note.find({ research: req.params.researchId }).populate(
-      "task project research"
+      "project createdBy"
     );
+
+    res.status(200).json(notes);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
+// Get Notes by Creator (User ID)
+exports.getNotesByCreator = async (req, res) => {
+  try {
+    const notes = await Note.find({ createdBy: req.params.userId }).populate(
+      "project research"
+    );
+
     res.status(200).json(notes);
   } catch (error) {
     res.status(400).json({ error: error.message });

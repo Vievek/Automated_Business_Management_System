@@ -12,9 +12,6 @@ router.put("/:id", backlogController.updateBacklog);
 router.delete("/:id", backlogController.deleteBacklog);
 
 // Get all backlogs for a project
-router.get(
-  "/projects/:projectId/backlogs",
-  backlogController.getProjectBacklogs
-);
+router.get("/project/:projectId", backlogController.getProjectBacklogs);
 
 module.exports = router;

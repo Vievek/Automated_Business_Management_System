@@ -11,6 +11,9 @@ function layout({ children }) {
       <Link href="/authenticated/common/task/taskpage">
         <Button>task page</Button>
       </Link>
+      <Link href="/authenticated/common/project/dashboard">
+        <Button>project page</Button>
+      </Link>
       {children}
     </>
   );

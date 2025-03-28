@@ -6,10 +6,7 @@ const questionController = require("../controllers/questionController");
 router.post("/", questionController.createQuestion);
 
 // Get all questions for a project
-router.get(
-  "/projects/:projectId/questions",
-  questionController.getProjectQuestions
-);
+router.get("/project/:projectId", questionController.getProjectQuestions);
 
 // Update a question
 router.put("/:id", questionController.updateQuestion);
