@@ -71,7 +71,7 @@ function ProjectsPage() {
               Select a project to view its dashboard
             </p>
           </div>
-          <Link href="/authenticated/projects/new">
+          <Link href="/authenticated/common/project/new">
             <Button>
               <Plus className="mr-2 h-4 w-4" />
               New Project
