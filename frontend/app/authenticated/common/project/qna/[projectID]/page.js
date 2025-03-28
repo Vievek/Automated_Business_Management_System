@@ -37,22 +37,30 @@ function ProjectQnAPage({ params }) {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const [questionsRes, answersRes] = await Promise.all([
-          customFetch(`/questions/project/${projectId}`),
-          customFetch(`/answers/questions/${projectId}/answers`),
-        ]);
+        const questionsRes = await customFetch(
+          `/questions/project/${projectId}`
+        );
 
-        setQuestions(questionsRes || []);
+        if (questionsRes && questionsRes.length > 0) {
+          // Fetch answers for all questions in parallel
+          const answersPromises = questionsRes.map((question) =>
+            customFetch(`/answers/questions/${question._id}/answers`)
+          );
 
-        // Organize answers by question ID
-        const answersMap = {};
-        (answersRes || []).forEach((answer) => {
-          if (!answersMap[answer.question]) {
-            answersMap[answer.question] = [];
-          }
-          answersMap[answer.question].push(answer);
-        });
-        setAnswers(answersMap);
+          const answersResults = await Promise.all(answersPromises);
+
+          // Create answers map
+          const answersMap = {};
+          questionsRes.forEach((question, index) => {
+            answersMap[question._id] = answersResults[index] || [];
+          });
+
+          setQuestions(questionsRes);
+          setAnswers(answersMap);
+        } else {
+          setQuestions([]);
+          setAnswers({});
+        }
       } catch (error) {
         console.error("Error fetching data:", error);
         toast.error("Failed to load Q&A data");
@@ -90,6 +98,7 @@ function ProjectQnAPage({ params }) {
       });
 
       setQuestions([...questions, response]);
+      setAnswers((prev) => ({ ...prev, [response._id]: [] }));
       setNewQuestion("");
       toast.success("Question added successfully");
     } catch (error) {
@@ -132,6 +141,11 @@ function ProjectQnAPage({ params }) {
       });
 
       setQuestions(questions.filter((q) => q._id !== questionId));
+      setAnswers((prev) => {
+        const newAnswers = { ...prev };
+        delete newAnswers[questionId];
+        return newAnswers;
+      });
       toast.success("Question deleted successfully");
     } catch (error) {
       console.error("Error deleting question:", error);
@@ -293,7 +307,18 @@ function ProjectQnAPage({ params }) {
       const results = await Promise.all(creationPromises);
       const successfulQuestions = results.filter((q) => q !== null);
 
-      setQuestions([...questions, ...successfulQuestions]);
+      // Update state with new questions and initialize empty answers for them
+      setQuestions((prev) => [...prev, ...successfulQuestions]);
+      setAnswers((prev) => {
+        const newAnswers = { ...prev };
+        successfulQuestions.forEach((q) => {
+          if (q && q._id) {
+            newAnswers[q._id] = [];
+          }
+        });
+        return newAnswers;
+      });
+
       toast.success(
         `${successfulQuestions.length} questions generated successfully`
       );
@@ -480,7 +505,7 @@ function ProjectQnAPage({ params }) {
           )}
         </Accordion>
 
-        <div className=" fixed bottom-4 left-4">
+        <div className="fixed bottom-4 left-4">
           <Button
             variant="outline"
             onClick={() => router.back()}
