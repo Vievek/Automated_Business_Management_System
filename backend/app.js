@@ -6,7 +6,6 @@ const cors = require("cors");
 const userRoutes = require("./routes/userRoutes");
 const policyRoutes = require("./routes/policyRoutes");
 const projectRoutes = require("./routes/projectRoutes");
-const teamRoutes = require("./routes/teamRoutes");
 const taskRoutes = require("./routes/taskRoutes");
 const noteRoutes = require("./routes/noteRoutes");
 const researchRoutes = require("./routes/researchRoutes");
@@ -49,7 +48,6 @@ mongoose
 app.use("/api/users", userRoutes);
 app.use("/api/policies", policyRoutes);
 app.use("/api/projects", projectRoutes);
-app.use("/api/teams", teamRoutes);
 app.use("/api/tasks", taskRoutes);
 app.use("/api/notes", noteRoutes);
 app.use("/api/researches", researchRoutes);

@@ -84,9 +84,10 @@ exports.login = async (req, res) => {
 exports.getAllUsers = async (req, res) => {
   try {
     const users = await User.find()
-      .select("_id username role") // Only get necessary fields
-      .sort({ role: 1, username: 1 }) // Sort by role then by username
-      .lean(); // Convert to plain JavaScript object
+      .populate("projects")
+      .populate("tasks")
+      .populate("researches")
+      .populate("notes");
 
     res.json(users);
   } catch (err) {
@@ -100,8 +101,6 @@ exports.getUserProfile = async (req, res) => {
     const userId = req.user.id; // Extracted from JWT payload
     const user = await User.findById(userId)
       .populate("projects")
-      .populate("teams")
-      .populate("workingProject")
       .populate("tasks")
       .populate("researches")
       .populate("notes");
@@ -122,8 +121,6 @@ exports.getUserByID = async (req, res) => {
     const { id } = req.params;
     const user = await User.findById(id)
       .populate("projects")
-      .populate("teams")
-      .populate("workingProject")
       .populate("tasks")
       .populate("researches")
       .populate("notes");
@@ -165,7 +162,6 @@ exports.updateUser = async (req, res) => {
       "currentStatus",
       "role",
       "projects",
-      "workingProject",
       "tasks",
       "researches",
       "notes",
@@ -215,20 +211,17 @@ exports.deleteUser = async (req, res) => {
   }
 };
 
-// Get Users by Filters (role, currentStatus, workingProject)
+// Get Users by Filters (role, currentStatus)
 exports.getUsersByFilters = async (req, res) => {
-  const { role, currentStatus, workingProject } = req.query;
+  const { role, currentStatus } = req.query;
 
   try {
     const filter = {};
     if (role) filter.role = role;
     if (currentStatus) filter.currentStatus = currentStatus;
-    if (workingProject) filter.workingProject = workingProject;
 
     const users = await User.find(filter)
       .populate("projects")
-      .populate("workingProject")
-      .populate("teams")
       .populate("tasks")
       .populate("researches")
       .populate("notes");
@@ -257,8 +250,6 @@ exports.searchUsers = async (req, res) => {
       ],
     })
       .populate("projects")
-      .populate("workingProject")
-      .populate("teams")
       .populate("tasks")
       .populate("researches")
       .populate("notes");
