@@ -376,9 +376,9 @@ function ProjectNotesPage({ params }) {
         <div className="mt-8 flex justify-end gap-4">
           <Button
             variant="ghost"
-            onClick={() =>
-              router.push("/authenticated/common/project/dashboard")
-            }
+            onClick={() => {
+              window.location.href = "/authenticated/common/project/dashboard";
+            }}
             disabled={isDeleting}
           >
             Back to Dashboard

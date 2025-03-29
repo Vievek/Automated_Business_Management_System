@@ -119,7 +119,9 @@ function CreateNotePage({ params }) {
               type="button"
               variant="outline"
               onClick={() =>
-                router.push(`/authenticated/projects/${projectId}`)
+                router.push(
+                  `/authenticated/common/project/projectpage/${projectId}`
+                )
               }
               disabled={loading}
             >
