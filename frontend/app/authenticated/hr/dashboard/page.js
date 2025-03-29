@@ -64,6 +64,7 @@ function HRDashboardPage() {
           queryParams.append("currentStatus", filters.currentStatus);
         if (filters.workingProject)
           queryParams.append("workingProject", filters.workingProject);
+        console.log(queryParams.toString());
 
         response = await customFetch(
           `/users/filtered-users?${queryParams.toString()}`

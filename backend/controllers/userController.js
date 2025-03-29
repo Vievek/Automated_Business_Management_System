@@ -1,6 +1,7 @@
 const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const Project = require("../models/Project");
 
 // Register User
 exports.register = async (req, res) => {
@@ -213,12 +214,24 @@ exports.deleteUser = async (req, res) => {
 
 // Get Users by Filters (role, currentStatus)
 exports.getUsersByFilters = async (req, res) => {
-  const { role, currentStatus } = req.query;
+  const { role, currentStatus, workingProject } = req.query;
 
   try {
     const filter = {};
     if (role) filter.role = role;
     if (currentStatus) filter.currentStatus = currentStatus;
+
+    if (workingProject) {
+      try {
+        const matchingProjects = await Project.find({
+          name: { $regex: workingProject, $options: "i" },
+        });
+        filter.projects = { $in: matchingProjects.map((p) => p._id) };
+      } catch (err) {
+        console.error("Error searching projects:", err);
+        // You might want to handle this error appropriately
+      }
+    }
 
     const users = await User.find(filter)
       .populate("projects")
