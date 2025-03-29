@@ -19,8 +19,9 @@ function Login() {
     const roleRoutes = {
       pm: "/authenticated/pm/dashboard",
       hr: "/authenticated/hr/dashboard",
+      cfo: "/authenticated/cfo/dashboard",
     };
-    router.push(roleRoutes[role] || "/dashboard");
+    router.push(roleRoutes[role] || "/authenticated/workers/dashboard");
   };
   //Check if the user is already authenticated when the page loads
   // useEffect(() => {
