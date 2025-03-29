@@ -135,7 +135,7 @@ function CFODashboardPage() {
   };
 
   return (
-    <ProtectedRoute>
+    <ProtectedRoute roles={["cfo"]}>
       <div className="container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold">Financial Dashboard</h1>
@@ -293,7 +293,7 @@ function CFODashboardPage() {
         ) : (
           <>
             {/* Company Financial Summary (ALL transactions) */}
-            <div className="bg-white rounded-lg shadow p-6 mb-8">
+            <div className=" rounded-lg shadow p-6 mb-8">
               <h2 className="text-2xl font-bold mb-4">
                 Company Financial Summary (All Transactions)
               </h2>
