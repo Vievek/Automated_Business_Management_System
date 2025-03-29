@@ -21,12 +21,16 @@ import { Button } from "@/components/ui/button";
 import { Eye, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 
+// Define authorized roles who can assign tasks and see "Assigned By Me" tab
+const AUTHORIZED_ROLES = ["ceo", "cfo", "hr", "team lead", "pm"];
+
 function TasksPage() {
   const { user, fetchUser } = useAuthStore();
   const [tasks, setTasks] = useState({ assignedToMe: [], assignedByMe: [] });
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
+  const [isAuthorized, setIsAuthorized] = useState(false);
 
   useEffect(() => {
     const loadData = async () => {
@@ -39,11 +43,16 @@ function TasksPage() {
         return;
       }
 
+      // Check if user has authorized role
+      setIsAuthorized(AUTHORIZED_ROLES.includes(user.role));
+
       try {
         setLoading(true);
         const [assignedToMeResponse, assignedByMeResponse] = await Promise.all([
           customFetch(`/tasks/assignedTo/${user._id}`),
-          customFetch(`/tasks/assignedBy/${user._id}`),
+          isAuthorized
+            ? customFetch(`/tasks/assignedBy/${user._id}`)
+            : Promise.resolve([]),
         ]);
 
         setTasks({
@@ -59,7 +68,7 @@ function TasksPage() {
     };
 
     loadData();
-  }, [user, fetchUser]);
+  }, [user, fetchUser, isAuthorized]);
 
   useEffect(() => {
     if (searchQuery.trim() === "") {
@@ -198,7 +207,9 @@ function TasksPage() {
           <Tabs defaultValue="assignedToMe">
             <TabsList>
               <TabsTrigger value="assignedToMe">Assigned To Me</TabsTrigger>
-              <TabsTrigger value="assignedByMe">Assigned By Me</TabsTrigger>
+              {isAuthorized && (
+                <TabsTrigger value="assignedByMe">Assigned By Me</TabsTrigger>
+              )}
             </TabsList>
 
             <TabsContent value="assignedToMe">
@@ -218,31 +229,37 @@ function TasksPage() {
               </Table>
             </TabsContent>
 
-            <TabsContent value="assignedByMe">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Task Name</TableHead>
-                    <TableHead>Description</TableHead>
-                    <TableHead>Assigned To</TableHead>
-                    <TableHead>Project</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Deadline</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>{renderTable(tasks.assignedByMe, false)}</TableBody>
-              </Table>
-            </TabsContent>
+            {isAuthorized && (
+              <TabsContent value="assignedByMe">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Task Name</TableHead>
+                      <TableHead>Description</TableHead>
+                      <TableHead>Assigned To</TableHead>
+                      <TableHead>Project</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Deadline</TableHead>
+                      <TableHead>Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {renderTable(tasks.assignedByMe, false)}
+                  </TableBody>
+                </Table>
+              </TabsContent>
+            )}
           </Tabs>
         )}
       </div>
-      <Link
-        href="/authenticated/common/task/newTask"
-        className="fixed bottom-4 right-4"
-      >
-        <Button>New Task</Button>
-      </Link>
+      {isAuthorized && (
+        <Link
+          href="/authenticated/common/task/newTask"
+          className="fixed bottom-4 right-4"
+        >
+          <Button>New Task</Button>
+        </Link>
+      )}
     </ProtectedRoute>
   );
 }
