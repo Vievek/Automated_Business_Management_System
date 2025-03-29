@@ -129,7 +129,7 @@ function TasksPage() {
     return data.map((task) => (
       <TableRow key={task._id}>
         <TableCell>{task.taskName}</TableCell>
-        <TableCell className="max-w-[300px] whitespace-normal break-words">
+        <TableCell className="max-w-[300px] truncate">
           {task.description}
         </TableCell>
         <TableCell>

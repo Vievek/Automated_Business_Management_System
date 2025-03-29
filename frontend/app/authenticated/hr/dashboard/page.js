@@ -171,7 +171,7 @@ function HRDashboardPage() {
         {/* Users Table */}
         <div className="border rounded-lg overflow-hidden">
           <Table>
-            <TableHeader className="bg-gray-100">
+            <TableHeader>
               <TableRow>
                 <TableHead>Name</TableHead>
                 <TableHead>Username</TableHead>
