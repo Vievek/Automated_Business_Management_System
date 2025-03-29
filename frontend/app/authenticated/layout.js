@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Menu } from "lucide-react";
 import useAuthStore from "@/stores/authStore";
@@ -15,9 +15,22 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 function Layout({ children }) {
-  const { user } = useAuthStore();
+  const { user, loading, fetchUser } = useAuthStore();
   const { setTheme } = useTheme();
   const [isSideNavOpen, setIsSideNavOpen] = useState(false);
+
+  // Add this useEffect to fetch user on mount
+  useEffect(() => {
+    if (!user) {
+      fetchUser().catch(() => {
+        // Handle error if needed
+      });
+    }
+  }, [user, fetchUser]);
+
+  if (loading) {
+    return <div>Loading...</div>; // Show loading state
+  }
 
   if (!user) {
     return <div>Please log in to access this page</div>;
