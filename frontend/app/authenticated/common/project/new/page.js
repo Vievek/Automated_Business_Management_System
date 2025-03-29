@@ -134,7 +134,9 @@ function NewProjectPage() {
 
         <form onSubmit={handleSubmit} className="max-w-lg space-y-4">
           <div>
-            <Label htmlFor="name">Project Name</Label>
+            <Label htmlFor="name" className={"mb-3"}>
+              Project Name
+            </Label>
             <Input
               id="name"
               name="name"
@@ -145,7 +147,9 @@ function NewProjectPage() {
           </div>
 
           <div>
-            <Label htmlFor="description">Description</Label>
+            <Label htmlFor="description" className={"mb-3"}>
+              Description
+            </Label>
             <Textarea
               id="description"
               name="description"
@@ -157,7 +161,7 @@ function NewProjectPage() {
           </div>
 
           <div>
-            <Label>Add Members</Label>
+            <Label className={"mb-2"}>Add Members</Label>
             <div className="space-y-2">
               {Object.entries(usersByRole).map(([role, roleUsers]) => (
                 <div key={role} className="space-y-1">

@@ -14,18 +14,27 @@ import Link from "next/link";
 import { Plus } from "lucide-react";
 import ProtectedRoute from "@/app/_components/protectedRoute";
 
+// Define authorized roles who can create new projects
+const AUTHORIZED_ROLES = ["ceo", "cfo", "hr", "team lead", "pm"];
+
 function ProjectsPage() {
   const { user, fetchUser } = useAuthStore();
   const [loading, setLoading] = React.useState(true);
+  const [isAuthorized, setIsAuthorized] = React.useState(false);
 
   React.useEffect(() => {
     const loadUser = async () => {
       if (!user) {
         try {
           await fetchUser();
+          console.log("User data:", user);
         } catch (error) {
           console.error("Error fetching user:", error);
         }
+      }
+      // Check if user has authorized role after user data is loaded
+      if (user && user.role) {
+        setIsAuthorized(AUTHORIZED_ROLES.includes(user.role));
       }
       setLoading(false);
     };
@@ -39,7 +48,7 @@ function ProjectsPage() {
         <div className="container mx-auto px-4 py-8">
           <div className="flex justify-between items-center mb-8">
             <Skeleton className="h-8 w-48" />
-            <Skeleton className="h-10 w-32" />
+            {isAuthorized && <Skeleton className="h-10 w-32" />}
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {Array(3)
@@ -71,30 +80,36 @@ function ProjectsPage() {
               Select a project to view its dashboard
             </p>
           </div>
-          <Link href="/authenticated/common/project/new">
-            <Button>
-              <Plus className="mr-2 h-4 w-4" />
-              New Project
-            </Button>
-          </Link>
-        </div>
-
-        {user?.projects?.length === 0 ? (
-          <div className="text-center py-12">
-            <h2 className="text-xl font-semibold mb-2">No projects found</h2>
-            <p className="text-muted-foreground mb-6">
-              You haven't been added to any projects yet
-            </p>
+          {isAuthorized && (
             <Link href="/authenticated/common/project/new">
               <Button>
                 <Plus className="mr-2 h-4 w-4" />
-                Create your first project
+                New Project
               </Button>
             </Link>
+          )}
+        </div>
+
+        {!user?.projects || user.projects.length === 0 ? (
+          <div className="text-center py-12">
+            <h2 className="text-xl font-semibold mb-2">No projects found</h2>
+            <p className="text-muted-foreground mb-6">
+              {isAuthorized
+                ? "You haven't created any projects yet"
+                : "You haven't been added to any projects yet"}
+            </p>
+            {isAuthorized && (
+              <Link href="/authenticated/common/project/new">
+                <Button>
+                  <Plus className="mr-2 h-4 w-4" />
+                  Create your first project
+                </Button>
+              </Link>
+            )}
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {user?.projects?.map((project) => (
+            {user.projects.map((project) => (
               <Card
                 key={project._id}
                 className="hover:shadow-md transition-shadow"
