@@ -1,4 +1,3 @@
-// stores/authStore.js
 import { create } from "zustand";
 import customFetch from "@/lib/fetch";
 
@@ -15,13 +14,8 @@ const useAuthStore = create((set) => ({
         body: JSON.stringify({ username, password }),
       });
 
-      // Fetch user profile after successful login
-      const userData = await customFetch(`/users/profile`, {
-        method: "GET",
-      });
-      console.log(userData);
+      const userData = await customFetch(`/users/profile`);
       if (!userData || !userData._id) {
-        console.log("Failed to load user profile");
         throw new Error("Failed to load user profile");
       }
       set({ user: userData, loading: false });
@@ -41,11 +35,34 @@ const useAuthStore = create((set) => ({
     set({ loading: true });
     try {
       const userData = await customFetch("/users/profile");
-      set({ user: userData, loading: false });
-      return userData;
+      if (!userData) throw new Error("Failed to fetch user data");
+
+      const userWithProjects = {
+        ...userData,
+        projects: userData.projects || [],
+      };
+
+      set({ user: userWithProjects, loading: false });
+      return userWithProjects;
     } catch (error) {
       set({ error: error.message, loading: false });
       throw error;
+    }
+  },
+
+  refreshUserProjects: async () => {
+    try {
+      const userData = await customFetch("/users/profile");
+      if (!userData) return;
+
+      set((state) => ({
+        user: {
+          ...state.user,
+          projects: userData.projects || [],
+        },
+      }));
+    } catch (error) {
+      console.error("Failed to refresh projects:", error);
     }
   },
 }));

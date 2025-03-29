@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useEffect } from "react";
 import useAuthStore from "@/stores/authStore";
 import {
   Card,
@@ -13,36 +13,37 @@ import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
 import { Plus } from "lucide-react";
 import ProtectedRoute from "@/app/_components/protectedRoute";
+import { toast } from "sonner";
 
-// Define authorized roles who can create new projects
 const AUTHORIZED_ROLES = ["ceo", "cfo", "hr", "team lead", "pm"];
 
 function ProjectsPage() {
-  const { user, fetchUser } = useAuthStore();
+  const { user, fetchUser, loading: authLoading } = useAuthStore();
   const [loading, setLoading] = React.useState(true);
   const [isAuthorized, setIsAuthorized] = React.useState(false);
 
-  React.useEffect(() => {
-    const loadUser = async () => {
-      if (!user) {
-        try {
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        if (!user) {
           await fetchUser();
-          console.log("User data:", user);
-        } catch (error) {
-          console.error("Error fetching user:", error);
         }
+
+        if (user?.role) {
+          setIsAuthorized(AUTHORIZED_ROLES.includes(user.role));
+        }
+      } catch (error) {
+        console.error("Error loading user data:", error);
+        toast.error("Failed to load user data");
+      } finally {
+        setLoading(false);
       }
-      // Check if user has authorized role after user data is loaded
-      if (user && user.role) {
-        setIsAuthorized(AUTHORIZED_ROLES.includes(user.role));
-      }
-      setLoading(false);
     };
 
-    loadUser();
+    loadData();
   }, [user, fetchUser]);
 
-  if (loading) {
+  if (authLoading || loading) {
     return (
       <ProtectedRoute>
         <div className="container mx-auto px-4 py-8">
