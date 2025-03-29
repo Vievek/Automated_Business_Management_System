@@ -139,7 +139,7 @@ function CFODashboardPage() {
       <div className="container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold">Financial Dashboard</h1>
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-col md:flex-row">
             <Link href="/authenticated/cfo/add/income">
               <Button className="flex items-center gap-2">
                 <Plus size={16} /> Add Income
@@ -199,11 +199,7 @@ function CFODashboardPage() {
                             <TableCell>
                               {formatCurrency(income.amount)}
                             </TableCell>
-                            <TableCell
-                              className={
-                                "max-w-[300px] whitespace-normal break-words"
-                              }
-                            >
+                            <TableCell className={"max-w-[300px] truncate"}>
                               {income.description}
                             </TableCell>
                             <TableCell>{formatDate(income.date)}</TableCell>
@@ -255,11 +251,7 @@ function CFODashboardPage() {
                             <TableCell>
                               {formatCurrency(expense.amount)}
                             </TableCell>
-                            <TableCell
-                              className={
-                                "max-w-[300px] whitespace-normal break-words"
-                              }
-                            >
+                            <TableCell className={"max-w-[300px] truncate"}>
                               {expense.description}
                             </TableCell>
                             <TableCell>{formatDate(expense.date)}</TableCell>
@@ -298,13 +290,13 @@ function CFODashboardPage() {
                 Company Financial Summary (All Transactions)
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="bg-green-50 p-4 rounded-lg">
+                <div className=" p-4 rounded-lg">
                   <h3 className="font-semibold text-green-800">Total Income</h3>
                   <p className="text-2xl font-bold">
                     {formatCurrency(companySummary.totalIncome)}
                   </p>
                 </div>
-                <div className="bg-red-50 p-4 rounded-lg">
+                <div className=" p-4 rounded-lg">
                   <h3 className="font-semibold text-red-800">Total Expense</h3>
                   <p className="text-2xl font-bold">
                     {formatCurrency(companySummary.totalExpense)}
@@ -313,8 +305,8 @@ function CFODashboardPage() {
                 <div
                   className={`p-4 rounded-lg ${
                     companySummary.profitLoss >= 0
-                      ? "bg-blue-50 text-blue-800"
-                      : "bg-orange-50 text-orange-800"
+                      ? " text-blue-800"
+                      : " text-orange-800"
                   }`}
                 >
                   <h3 className="font-semibold">Profit/Loss</h3>
@@ -350,9 +342,7 @@ function CFODashboardPage() {
                               {formatCurrency(income.amount)}
                             </TableCell>
                             <TableCell
-                              className={
-                                "max-w-[300px] whitespace-normal break-words"
-                              }
+                              className={"max-w-[300px] w-32 truncate"}
                             >
                               {income.description}
                             </TableCell>
@@ -404,9 +394,7 @@ function CFODashboardPage() {
                               {formatCurrency(expense.amount)}
                             </TableCell>
                             <TableCell
-                              className={
-                                "max-w-[300px] whitespace-normal break-words"
-                              }
+                              className={"max-w-[300px] w-32 truncate"}
                             >
                               {expense.description}
                             </TableCell>
@@ -451,12 +439,12 @@ function CFODashboardPage() {
 
               return (
                 <div key={project._id} className="mb-12">
-                  <div className="bg-white rounded-lg shadow p-6 mb-6">
+                  <div className="rounded-lg shadow p-6 mb-6">
                     <h2 className="text-xl font-bold mb-4">
                       Project: {project.name}
                     </h2>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div className="bg-green-50 p-4 rounded-lg">
+                      <div className=" p-4 rounded-lg">
                         <h3 className="font-semibold text-green-800">
                           Total Income
                         </h3>
@@ -464,7 +452,7 @@ function CFODashboardPage() {
                           {formatCurrency(projectSummary.totalIncome)}
                         </p>
                       </div>
-                      <div className="bg-red-50 p-4 rounded-lg">
+                      <div className=" p-4 rounded-lg">
                         <h3 className="font-semibold text-red-800">
                           Total Expense
                         </h3>
@@ -475,8 +463,8 @@ function CFODashboardPage() {
                       <div
                         className={`p-4 rounded-lg ${
                           projectSummary.profitLoss >= 0
-                            ? "bg-blue-50 text-blue-800"
-                            : "bg-orange-50 text-orange-800"
+                            ? " text-blue-800"
+                            : " text-orange-800"
                         }`}
                       >
                         <h3 className="font-semibold">Profit/Loss</h3>
@@ -510,9 +498,7 @@ function CFODashboardPage() {
                                     {formatCurrency(income.amount)}
                                   </TableCell>
                                   <TableCell
-                                    className={
-                                      "max-w-[300px] whitespace-normal break-words"
-                                    }
+                                    className={"max-w-[300px] w-32 truncate"}
                                   >
                                     {income.description}
                                   </TableCell>
@@ -564,9 +550,7 @@ function CFODashboardPage() {
                                     {formatCurrency(expense.amount)}
                                   </TableCell>
                                   <TableCell
-                                    className={
-                                      "max-w-[300px] whitespace-normal break-words"
-                                    }
+                                    className={"max-w-[300px] w-32 truncate"}
                                   >
                                     {expense.description}
                                   </TableCell>

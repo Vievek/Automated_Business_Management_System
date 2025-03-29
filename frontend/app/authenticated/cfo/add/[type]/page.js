@@ -127,7 +127,7 @@ export default function AddTransactionPage({ params }) {
           {/* Amount */}
           <div>
             <Label htmlFor="amount" className="mb-2">
-              Amount (₹)
+              Amount ($)
             </Label>
             <Input
               id="amount"
