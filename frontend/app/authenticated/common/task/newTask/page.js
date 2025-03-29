@@ -179,7 +179,9 @@ function NewTaskPage() {
 
         <form onSubmit={handleSubmit} className="max-w-lg space-y-4">
           <div>
-            <Label htmlFor="taskName">Task Name</Label>
+            <Label htmlFor="taskName" className={"mb-3"}>
+              Task Name
+            </Label>
             <Input
               id="taskName"
               name="taskName"
@@ -190,7 +192,9 @@ function NewTaskPage() {
           </div>
 
           <div>
-            <Label htmlFor="description">Description</Label>
+            <Label htmlFor="description" className={"mb-3"}>
+              Description
+            </Label>
             <Textarea
               id="description"
               name="description"
@@ -203,7 +207,9 @@ function NewTaskPage() {
           </div>
 
           <div>
-            <Label htmlFor="assignedTo">Assign To</Label>
+            <Label htmlFor="assignedTo" className={"mb-3"}>
+              Assign To
+            </Label>
             <Select
               onValueChange={(value) => handleSelectChange("assignedTo", value)}
               value={formData.assignedTo}
@@ -230,7 +236,9 @@ function NewTaskPage() {
           </div>
 
           <div>
-            <Label htmlFor="project">Project (Optional)</Label>
+            <Label htmlFor="project" className={"mb-3"}>
+              Project (Optional)
+            </Label>
             <Select
               onValueChange={(value) => handleSelectChange("project", value)}
               value={formData.project}
@@ -249,7 +257,7 @@ function NewTaskPage() {
           </div>
 
           <div>
-            <Label>Deadline</Label>
+            <Label className={"mb-3"}>Deadline</Label>
             <Popover>
               <PopoverTrigger asChild>
                 <Button
@@ -272,7 +280,9 @@ function NewTaskPage() {
           </div>
 
           <div>
-            <Label htmlFor="status">Status</Label>
+            <Label htmlFor="status" className={"mb-3"}>
+              Status
+            </Label>
             <Select
               onValueChange={(value) => handleSelectChange("status", value)}
               value={formData.status}
@@ -303,7 +313,7 @@ function NewTaskPage() {
           </div>
         </form>
       </div>
-      <div className="absolute bottom-4 right-4">
+      <div className="absolute bottom-2 right-4">
         <AiDialog
           inputPrompt={InputPrompt}
           dialogTitle={DialogTitle}
