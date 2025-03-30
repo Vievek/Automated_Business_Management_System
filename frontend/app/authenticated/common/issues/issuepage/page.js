@@ -112,7 +112,7 @@ function IssuesPage() {
     return data.map((issue) => (
       <TableRow key={issue._id}>
         <TableCell>{issue.issueName}</TableCell>
-        <TableCell className="max-w-[400px] whitespace-normal break-words">
+        <TableCell className="max-w-[400px] truncate">
           {issue.details}
         </TableCell>
         <TableCell>
