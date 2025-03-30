@@ -17,7 +17,7 @@ function Login() {
   // Function to handle redirection based on role
   const redirectUser = (role) => {
     const roleRoutes = {
-      pm: "/authenticated/pm/dashboard",
+      pm: "/authenticated/common/project/dashboard",
       hr: "/authenticated/hr/dashboard",
       cfo: "/authenticated/cfo/dashboard",
     };

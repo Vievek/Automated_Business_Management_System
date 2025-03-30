@@ -89,19 +89,28 @@ function NewProjectPage() {
     return acc;
   }, {});
 
-  const InputPrompt =
-    "I will provide an input. Using the input, generate a project name and description in JSON format...";
+  const InputPrompt = `IMPORTANT: You MUST respond with ONLY valid JSON in this exact format:
+{
+  "name": "Project Name Here",
+  "description": "Project Description Here"
+}
+
+Based on the following project description, generate appropriate values for "name" and "description". Keep the description to 1-2 paragraphs.
+
+Input:`;
   const DialogTitle = "Prompt to generate project details";
   const placeholder = "Describe your project idea or requirements";
 
   const handleChildData = (data) => {
     try {
       const parsedData = typeof data === "string" ? JSON.parse(data) : data;
+      console.log("Parsed data:", parsedData);
       setFormData((prev) => ({
         ...prev,
         name: parsedData.name || prev.name,
         description: parsedData.description || prev.description,
       }));
+      console.log(formData);
       toast.success("AI-generated content applied to form");
     } catch (error) {
       console.error("Error parsing AI response:", error);
