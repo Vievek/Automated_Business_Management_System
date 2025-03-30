@@ -129,7 +129,7 @@ export default function TransactionDetailsPage({ params }) {
           <div className="border rounded-lg p-4">
             <h2 className="text-lg font-semibold mb-2">Amount</h2>
             <p className="text-2xl font-bold">
-              ₹{transaction.amount.toLocaleString()}
+              ${transaction.amount.toLocaleString()}
             </p>
           </div>
 
