@@ -274,6 +274,7 @@ function NewTaskPage() {
                   selected={date}
                   onSelect={handleDateSelect}
                   initialFocus
+                  disabled={(date) => date < new Date()}
                 />
               </PopoverContent>
             </Popover>
