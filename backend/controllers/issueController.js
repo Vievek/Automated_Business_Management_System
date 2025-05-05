@@ -106,12 +106,10 @@ exports.getIssuesByRaisedTo = async (req, res) => {
     const { notedStatus, resolvedStatus } = req.query;
     const filter = { raisedTo: req.params.id };
 
-    // Add notedStatus to filter if provided
     if (notedStatus !== undefined) {
       filter.notedStatus = notedStatus === "true";
     }
 
-    // Add resolvedStatus to filter if provided
     if (resolvedStatus !== undefined) {
       filter.resolvedStatus = resolvedStatus === "true";
     }
@@ -119,7 +117,7 @@ exports.getIssuesByRaisedTo = async (req, res) => {
     const issues = await Issue.find(filter).populate(
       "raisedBy raisedTo",
       "username email"
-    ); // Populate user details
+    );
     res.status(200).json(issues);
   } catch (error) {
     res
@@ -134,12 +132,10 @@ exports.getIssuesByRaisedBy = async (req, res) => {
     const { notedStatus, resolvedStatus } = req.query;
     const filter = { raisedBy: req.params.id };
 
-    // Add notedStatus to filter if provided
     if (notedStatus !== undefined) {
       filter.notedStatus = notedStatus === "true";
     }
 
-    // Add resolvedStatus to filter if provided
     if (resolvedStatus !== undefined) {
       filter.resolvedStatus = resolvedStatus === "true";
     }
@@ -147,7 +143,7 @@ exports.getIssuesByRaisedBy = async (req, res) => {
     const issues = await Issue.find(filter).populate(
       "raisedBy raisedTo",
       "username email"
-    ); // Populate user details
+    );
     res.status(200).json(issues);
   } catch (error) {
     res
@@ -161,7 +157,6 @@ exports.searchIssues = async (req, res) => {
   const { query } = req.query;
 
   try {
-    // Find users whose username, firstname, or lastname matches the query
     const users = await User.find({
       $or: [
         { username: { $regex: query, $options: "i" } },
@@ -170,23 +165,35 @@ exports.searchIssues = async (req, res) => {
       ],
     });
 
-    // Extract user IDs from the search results
     const userIds = users.map((user) => user._id);
 
-    // Find issues where issueName, details, raisedBy, or raisedTo matches the query
     const issues = await Issue.find({
       $or: [
-        { issueName: { $regex: query, $options: "i" } }, // Search by issueName
-        { details: { $regex: query, $options: "i" } }, // Search by details
-        { raisedBy: { $in: userIds } }, // Search by raisedBy (user ID)
-        { raisedTo: { $in: userIds } }, // Search by raisedTo (user ID)
+        { issueName: { $regex: query, $options: "i" } },
+        { details: { $regex: query, $options: "i" } },
+        { raisedBy: { $in: userIds } },
+        { raisedTo: { $in: userIds } },
       ],
     })
-      .populate("raisedBy", "username firstname lastname") // Populate raisedBy with user details
-      .populate("raisedTo", "username firstname lastname"); // Populate raisedTo with user details
+      .populate("raisedBy", "username firstname lastname")
+      .populate("raisedTo", "username firstname lastname");
 
     res.json(issues);
   } catch (err) {
     res.status(400).json({ error: err.message });
+  }
+};
+
+// Report generation: return all issues for PDF export (JSON format)
+exports.generateIssueReportPDF = async (req, res) => {
+  try {
+    const issues = await Issue.find()
+      .populate("raisedBy", "username email")
+      .populate("raisedTo", "username email");
+
+    res.status(200).json(issues);
+  } catch (error) {
+    console.error("Error generating issue report:", error);
+    res.status(500).json({ message: "Failed to generate issue report" });
   }
 };

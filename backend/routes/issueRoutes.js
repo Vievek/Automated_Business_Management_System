@@ -2,13 +2,15 @@ const express = require("express");
 const router = express.Router();
 const issueController = require("../controllers/issueController");
 const authMiddleware = require("../middleware/auth");
-const abacMiddleware = require("../middleware/abac");
 
 // Create a new issue
 router.post("/issues", authMiddleware, issueController.createIssue);
 
 // Get all issues
 router.get("/issues", authMiddleware, issueController.getAllIssues);
+
+// Get the report (JSON for frontend PDF export)
+router.get("/download/report", authMiddleware, issueController.generateIssueReportPDF);
 
 // Get a single issue by ID
 router.get("/issues/:id", authMiddleware, issueController.getIssueById);
