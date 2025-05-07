@@ -107,12 +107,19 @@ function IssuesPage() {
     let y = 35;
 
     const addRow = (label, value) => {
+      const labelWidth = 35;
+      const maxWidth = 160;
+    
       doc.setFont("helvetica", "bold");
       doc.text(`${label}:`, 20, y);
+    
       doc.setFont("helvetica", "normal");
-      doc.text(`${value || "N/A"}`, 60, y);
-      y += 10;
+      const textLines = doc.splitTextToSize(value || "N/A", maxWidth - labelWidth);
+      doc.text(textLines, 20 + labelWidth, y);
+    
+      y += textLines.length * 8; // Adjust line height spacing
     };
+    
 
     addRow("Issue Name", issue.issueName);
     addRow("Details", issue.details);
