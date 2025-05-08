@@ -157,14 +157,16 @@ function NewTaskPage() {
   const handleChildData = (data) => {
     try {
       // Parse the JSON string if it's a string
+      console.log(data);
       const parsedData = typeof data === "string" ? JSON.parse(data) : data;
+      console.log("Parsed data:", parsedData);
 
       setFormData((prev) => ({
         ...prev,
         taskName: parsedData.taskName || prev.taskName,
         description: parsedData.description || prev.description,
       }));
-
+      console.log(formData);
       toast.success("AI-generated content applied to form");
     } catch (error) {
       console.error("Error parsing AI response:", error);
