@@ -131,7 +131,7 @@ function NewIssuePage() {
 
         <form onSubmit={handleSubmit} className="max-w-lg space-y-4">
           <div>
-            <Label htmlFor="issueName">Issue Name</Label>
+            <Label htmlFor="issueName" className="block text-sm font-medium mb-2">Issue Name</Label>
             <Input
               id="issueName"
               name="issueName"
@@ -142,7 +142,7 @@ function NewIssuePage() {
           </div>
 
           <div>
-            <Label htmlFor="details">Details</Label>
+            <Label htmlFor="details" className="block text-sm font-medium mb-2">Details</Label>
             <Textarea
               id="details"
               name="details"
@@ -154,7 +154,7 @@ function NewIssuePage() {
           </div>
 
           <div>
-            <Label htmlFor="raisedTo">Raised To</Label>
+            <Label htmlFor="raisedTo" className="block text-sm font-medium mb-2">Raised To</Label>
             <Select
               onValueChange={handleSelectChange}
               value={formData.raisedTo}
