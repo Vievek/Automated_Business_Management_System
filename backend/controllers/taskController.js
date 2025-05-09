@@ -237,3 +237,17 @@ exports.getTasksByAssignedToId = async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 };
+// Report generation: return all tasks for PDF export (JSON format)
+exports.generateTaskReportPDF = async (req, res) => {
+  try {
+    const tasks = await Task.find()
+      .populate("assignedBy", "username email")
+      .populate("assignedTo", "username email")
+      .populate("project", "name");
+
+    res.status(200).json(tasks);
+  } catch (error) {
+    console.error("Error generating task report:", error);
+    res.status(500).json({ message: "Failed to generate task report" });
+  }
+};

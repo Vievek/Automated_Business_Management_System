@@ -13,6 +13,13 @@ router.get("/", authMiddleware, taskController.getTasks);
 // Get a task by ID
 router.get("/:id", authMiddleware, taskController.getTaskById);
 
+// Get the report (JSON for frontend PDF export)
+router.get(
+  "/download/report",
+  authMiddleware,
+  taskController.generateTaskReportPDF
+);
+
 // Update a task
 router.put("/:id", authMiddleware, taskController.updateTask);
 
