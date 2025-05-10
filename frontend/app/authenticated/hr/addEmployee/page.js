@@ -39,10 +39,42 @@ function AddEmployeePage() {
     role: "",
   });
   const [loading, setLoading] = React.useState(false);
+  const [errors, setErrors] = React.useState({
+    email: "",
+    phone: "",
+  });
+
+  // Email validation function
+  const validateEmail = (email) => {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(email);
+  };
+
+  // Phone validation function (exactly 10 digits)
+  const validatePhone = (phone) => {
+    const re = /^\d{10}$/;
+    return re.test(phone);
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+
+    // Validate email on change
+    if (name === "email") {
+      setErrors((prev) => ({
+        ...prev,
+        email: value && !validateEmail(value) ? "Invalid email format" : "",
+      }));
+    }
+
+    // Validate phone on change
+    if (name === "phone") {
+      setErrors((prev) => ({
+        ...prev,
+        phone: value && !validatePhone(value) ? "Phone must be 10 digits" : "",
+      }));
+    }
   };
 
   const handleSelectChange = (value, name) => {
@@ -51,6 +83,23 @@ function AddEmployeePage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Validate before submission
+    const emailValid = validateEmail(formData.email);
+    const phoneValid = validatePhone(formData.phone);
+
+    if (!emailValid || !phoneValid) {
+      setErrors({
+        email: !emailValid ? "Invalid email format" : "",
+        phone: !phoneValid ? "Phone must be 10 digits" : "",
+      });
+      toast("Error", {
+        description: "Please fix the validation errors",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -75,7 +124,6 @@ function AddEmployeePage() {
 
       let errorMessage = error.message;
       if (error.data?.errors) {
-        // Handle validation errors from server
         errorMessage = Object.values(error.data.errors)
           .map((err) => err.message || err)
           .join(", ");
@@ -164,6 +212,9 @@ function AddEmployeePage() {
                   onChange={handleChange}
                   required
                 />
+                {errors.email && (
+                  <p className="text-sm text-red-500">{errors.email}</p>
+                )}
               </div>
 
               <div className="flex flex-col space-y-1.5">
@@ -176,6 +227,9 @@ function AddEmployeePage() {
                   onChange={handleChange}
                   required
                 />
+                {errors.phone && (
+                  <p className="text-sm text-red-500">{errors.phone}</p>
+                )}
               </div>
 
               <div className="flex flex-col space-y-1.5">
@@ -242,6 +296,9 @@ function AddEmployeePage() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="working on project">
+                      Working on project
+                    </SelectItem>
+                    <SelectItem value="No work">
                       Working on project
                     </SelectItem>
                     <SelectItem value="on bench">On bench</SelectItem>
