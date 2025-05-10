@@ -20,6 +20,8 @@ import { Plus, Search, FileText, FileSearch, FileDigit } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useParams, useRouter } from "next/navigation";
 import { Card } from "@/components/ui/card";
+import { jsPDF } from "jspdf";
+import { Download } from "lucide-react";
 
 function ProjectNotesPage({ params }) {
   const router = useRouter();
@@ -33,6 +35,222 @@ function ProjectNotesPage({ params }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("notes");
   const [isDeleting, setIsDeleting] = useState(false);
+
+  const generateProjectPDF = () => {
+    if (!project) return;
+
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const margin = 20;
+    const maxWidth = pageWidth - margin * 2;
+    const lineHeight = 7;
+
+    // Header
+    doc.setFontSize(18).setFont("helvetica", "bold");
+    doc.text(`Project: ${project.name}`, pageWidth / 2, 20, {
+      align: "center",
+    });
+    doc.setLineWidth(0.5).line(margin, 25, pageWidth - margin, 25);
+
+    let y = 35;
+
+    const addRow = (label, value) => {
+      doc.setFont("helvetica", "bold");
+      const labelLines = doc.splitTextToSize(label + ":", 40);
+      doc.text(labelLines, margin, y);
+
+      doc.setFont("helvetica", "normal");
+      const valueLines = doc.splitTextToSize(value || "N/A", maxWidth - 50);
+
+      const neededHeight =
+        Math.max(labelLines.length, valueLines.length) * lineHeight;
+
+      if (y + neededHeight > 270) {
+        doc.addPage();
+        y = 20;
+      }
+
+      doc.text(valueLines, margin + 50, y);
+      y += neededHeight + 5;
+    };
+
+    const addSectionHeader = (text) => {
+      y += 10;
+      doc.setFont("helvetica", "bold").setFontSize(14);
+      doc.text(text, margin, y);
+      y += 10;
+      doc.setFontSize(10);
+    };
+
+    // Project Details
+    addRow("Project Name", project.name);
+    addRow("Description", project.description);
+    // addRow(
+    //   "Start Date",
+    //   project.startDate ? format(new Date(project.startDate), "PPP") : "N/A"
+    // );
+    // addRow(
+    //   "End Date",
+    //   project.endDate ? format(new Date(project.endDate), "PPP") : "N/A"
+    // );
+    // addRow("Status", project.status);
+
+    // Project Notes
+    if (notes.length > 0) {
+      addSectionHeader("Project Notes");
+      notes.forEach((note, index) => {
+        addRow(`Note ${index + 1} - ${note.title}`, note.content);
+        if (note.tags?.length > 0) {
+          doc.text(`Tags: ${note.tags.join(", ")}`, margin + 50, y);
+          y += lineHeight;
+        }
+        y += 5;
+      });
+    }
+
+    // Project Backlogs
+    if (backlogs.length > 0) {
+      addSectionHeader("Project Backlogs");
+      backlogs.forEach((backlog, index) => {
+        addRow(`Backlog ${index + 1} - ${backlog.title}`, backlog.description);
+        addRow("Status", backlog.status);
+        addRow(
+          "Due Date",
+          backlog.dueDate
+            ? format(new Date(backlog.dueDate), "PPP")
+            : "No due date"
+        );
+        addRow("Assigned To", backlog.assignedTo?.username || "Unassigned");
+        y += 5;
+      });
+    }
+
+    // Project Members
+    if (project.members?.length > 0) {
+      addSectionHeader("Project Members");
+      project.members.forEach((member, index) => {
+        addRow(
+          `Member ${index + 1}`,
+          `${member.firstname} ${member.lastname} (@${member.username})`
+        );
+      });
+    }
+
+    // Footer
+    doc.setFontSize(10).setTextColor(150);
+    doc.text(`Generated on ${format(new Date(), "PPPpp")}`, margin, 285);
+
+    // Save the PDF
+    doc.save(`project-${project.name}-report.pdf`);
+  };
+
+  const generateNotePDF = (note) => {
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const margin = 20;
+    const maxWidth = pageWidth - margin * 2;
+    const lineHeight = 7;
+
+    // Header
+    doc.setFontSize(18).setFont("helvetica", "bold");
+    doc.text(`Project Note: ${note.title}`, pageWidth / 2, 20, {
+      align: "center",
+    });
+    doc.setLineWidth(0.5).line(margin, 25, pageWidth - margin, 25);
+
+    let y = 35;
+
+    const addRow = (label, value) => {
+      doc.setFont("helvetica", "bold");
+      const labelLines = doc.splitTextToSize(label + ":", 40);
+      doc.text(labelLines, margin, y);
+
+      doc.setFont("helvetica", "normal");
+      const valueLines = doc.splitTextToSize(value || "N/A", maxWidth - 50);
+
+      const neededHeight =
+        Math.max(labelLines.length, valueLines.length) * lineHeight;
+
+      if (y + neededHeight > 270) {
+        doc.addPage();
+        y = 20;
+      }
+
+      doc.text(valueLines, margin + 50, y);
+      y += neededHeight + 5;
+    };
+
+    // Note Details
+    addRow("Title", note.title);
+    addRow("Content", note.content);
+    addRow("Created By", note.createdBy?.username || "Unknown");
+
+    if (note.tags?.length > 0) {
+      addRow("Tags", note.tags.join(", "));
+    }
+
+    // Footer
+    doc.setFontSize(10).setTextColor(150);
+    doc.text(`Project: ${project?.name || "N/A"}`, margin, 285);
+
+    // Save the PDF
+    doc.save(`note-${note.title}.pdf`);
+  };
+
+  const generateBacklogPDF = (backlog) => {
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const margin = 20;
+    const maxWidth = pageWidth - margin * 2;
+    const lineHeight = 7;
+
+    // Header
+    doc.setFontSize(18).setFont("helvetica", "bold");
+    doc.text(`Project Backlog: ${backlog.title}`, pageWidth / 2, 20, {
+      align: "center",
+    });
+    doc.setLineWidth(0.5).line(margin, 25, pageWidth - margin, 25);
+
+    let y = 35;
+
+    const addRow = (label, value) => {
+      doc.setFont("helvetica", "bold");
+      const labelLines = doc.splitTextToSize(label + ":", 40);
+      doc.text(labelLines, margin, y);
+
+      doc.setFont("helvetica", "normal");
+      const valueLines = doc.splitTextToSize(value || "N/A", maxWidth - 50);
+
+      const neededHeight =
+        Math.max(labelLines.length, valueLines.length) * lineHeight;
+
+      if (y + neededHeight > 270) {
+        doc.addPage();
+        y = 20;
+      }
+
+      doc.text(valueLines, margin + 50, y);
+      y += neededHeight + 5;
+    };
+
+    // Backlog Details
+    addRow("Title", backlog.title);
+    addRow("Description", backlog.description);
+    addRow("Status", backlog.status);
+    addRow(
+      "Due Date",
+      backlog.dueDate ? format(new Date(backlog.dueDate), "PPP") : "No due date"
+    );
+    addRow("Assigned To", backlog.assignedTo?.username || "Unassigned");
+    addRow("Created At", format(new Date(backlog.createdAt), "PPPpp"));
+
+    // Footer
+    doc.setFontSize(10).setTextColor(150);
+    doc.text(`Project: ${project?.name || "N/A"}`, margin, 285);
+
+    // Save the PDF
+    doc.save(`backlog-${backlog.title}.pdf`);
+  };
 
   useEffect(() => {
     const loadData = async () => {
@@ -186,6 +404,20 @@ function ProjectNotesPage({ params }) {
               </div>
             )}
           </div>
+          <div className="mt-4 flex justify-end">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                generateNotePDF(note);
+              }}
+              title="Download Note as PDF"
+            >
+              <Download className="mr-1 h-4 w-4" />
+              Export Note
+            </Button>
+          </div>
         </AccordionContent>
       </AccordionItem>
     ));
@@ -243,6 +475,20 @@ function ProjectNotesPage({ params }) {
               Assigned to: {backlog.assignedTo?.username || "Unassigned"}
             </span>
           </div>
+          <div className="mt-4 flex justify-end">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                generateBacklogPDF(backlog);
+              }}
+              title="Download Backlog as PDF"
+            >
+              <Download className="mr-1 h-4 w-4" />
+              Export Backlog
+            </Button>
+          </div>
         </AccordionContent>
       </AccordionItem>
     ));
@@ -251,24 +497,34 @@ function ProjectNotesPage({ params }) {
   return (
     <ProtectedRoute>
       <div className="container mx-auto px-4 py-8">
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex justify-between items-start mb-6 flex-col gap-5">
           <div>
-            <h1 className="text-2xl font-bold">
+            <h1 className="text-2xl font-bold mb-2">
               {project?.name || "Project Dashboard"}
             </h1>
-            <p className="text-muted-foreground">
+            <p className="text-muted-foreground mb-2">
               {project?.description || "Loading project details..."}
             </p>
           </div>
-          <div className="relative w-64">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              type="search"
-              placeholder={`Search ${activeTab}...`}
-              className="pl-10"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
+          <div className="flex items-center gap-4 ">
+            <div className="relative w-64">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                type="search"
+                placeholder={`Search ${activeTab}...`}
+                className="pl-10"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+            <Button
+              variant="outline"
+              onClick={generateProjectPDF}
+              disabled={!project || loading}
+            >
+              <Download className="mr-2 h-4 w-4" />
+              Export Project
+            </Button>
           </div>
         </div>
 
