@@ -7,7 +7,7 @@ const populateUser = {
   path: "members",
   select: "-password",
   populate: [
-    { path: "projects", select: "name description" },
+    { path: "projects", select: "name description startDate" },
     { path: "tasks", select: "title status" },
     { path: "researches", select: "title status" },
     { path: "notes", select: "title content" },
@@ -17,9 +17,9 @@ const populateUser = {
 // Create project (can add multiple members)
 exports.createProject = async (req, res) => {
   try {
-    const { name, description, members } = req.body;
+    const { name, description, members, startDate } = req.body;
 
-    const project = new Project({ name, description, members });
+    const project = new Project({ name, description, members, startDate });
     await project.save();
 
     if (members && members.length > 0) {
@@ -80,11 +80,11 @@ exports.getProjectById = async (req, res) => {
 exports.updateProject = async (req, res) => {
   try {
     const { projectId } = req.params;
-    const { name, description } = req.body;
+    const { name, description, startDate } = req.body;
 
     const project = await Project.findByIdAndUpdate(
       projectId,
-      { name, description },
+      { name, description, startDate },
       { new: true }
     )
       .populate(populateUser)

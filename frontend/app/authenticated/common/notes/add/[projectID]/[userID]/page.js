@@ -64,22 +64,66 @@ function CreateNotePage({ params }) {
     }
   };
 
-  const InputPrompt =
-    "I will provide an input. Using the input, generate a note title and content in JSON format. The title should be a concise summary, and content should be detailed notes in markdown format.";
+  const InputPrompt = `
+  Create a note in this exact JSON format only:
+  {
+    "title": "short summary here",
+    "content": "formatted markdown here"
+  }
+  
+  Rules:
+  1. Title: 3-5 word summary
+  2. Content: Bullet points in markdown
+  3. No extra text outside the JSON
+  4. No code block wrappers (\`\`\`json)
+  
+  Input: `;
   const DialogTitle = "Generate Note Content";
   const placeholder = "Describe what you want to note about...";
 
   const handleChildData = (data) => {
     try {
-      const parsedData = typeof data === "string" ? JSON.parse(data) : data;
-      setFormData((prev) => ({
-        ...prev,
-        title: parsedData.title || prev.title,
-        content: parsedData.content || prev.content,
-      }));
-      toast.success("AI-generated content applied to form");
+      // Case 1: Data is already a parsed object (from AiDialog)
+      if (typeof data === "object" && data !== null) {
+        setFormData((prev) => ({
+          ...prev,
+          title: data.title || prev.title,
+          content: data.content || prev.content,
+        }));
+        toast.success("AI-generated content applied to form");
+        return;
+      }
+
+      // Case 2: Data is a string that might be JSON
+      if (typeof data === "string") {
+        // Try to clean the string if it has markdown code blocks
+        const cleanedData = data.replace(/```json|```/g, "").trim();
+
+        // Try parsing as JSON
+        try {
+          const parsedData = JSON.parse(cleanedData);
+          setFormData((prev) => ({
+            ...prev,
+            title: parsedData.title || prev.title,
+            content: parsedData.content || prev.content,
+          }));
+          toast.success("AI-generated content applied to form");
+          return;
+        } catch (e) {
+          // If not JSON, treat as plain text content
+          setFormData((prev) => ({
+            ...prev,
+            content: `${prev.content}\n\n${data}`.trim(),
+          }));
+          toast.success("AI-generated text added to content");
+          return;
+        }
+      }
+
+      // If we get here, the data format wasn't recognized
+      toast.warning("Received AI content in unexpected format");
     } catch (error) {
-      console.error("Error parsing AI response:", error);
+      console.error("Error processing AI response:", error);
       toast.error("Failed to apply AI-generated content");
     }
   };

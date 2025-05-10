@@ -20,6 +20,7 @@ function NewProjectPage() {
   const [formData, setFormData] = useState({
     name: "",
     description: "",
+    startDate: "",
   });
 
   useEffect(() => {
@@ -149,6 +150,19 @@ Input:`;
             />
           </div>
           <div>
+            <Label htmlFor="startDate" className="mb-3">
+              Start Date
+            </Label>
+            <Input
+              id="startDate"
+              name="startDate"
+              type="date"
+              value={formData.startDate}
+              onChange={handleChange}
+              required
+            />
+          </div>
+          <div>
             <Label className="mb-2">Add Members</Label>
             <div className="space-y-2">
               {Object.entries(usersByRole).map(([role, roleUsers]) => (
@@ -180,7 +194,9 @@ Input:`;
             <Button
               type="button"
               variant="outline"
-              onClick={() => router.push("/authenticated/common/projects")}
+              onClick={() =>
+                router.push("/authenticated/common/project/dashboard")
+              }
               disabled={loading}
             >
               Cancel
