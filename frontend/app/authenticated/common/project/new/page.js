@@ -180,7 +180,9 @@ Input:`;
             <Button
               type="button"
               variant="outline"
-              onClick={() => router.push("/authenticated/common/projects")}
+              onClick={() =>
+                router.push("/authenticated/common/project/dashboard")
+              }
               disabled={loading}
             >
               Cancel
