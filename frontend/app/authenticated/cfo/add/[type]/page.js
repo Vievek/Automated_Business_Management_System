@@ -168,6 +168,7 @@ export default function AddTransactionPage({ params }) {
               value={format(new Date(formData.date), "yyyy-MM-dd'T'HH:mm")}
               onChange={handleChange}
               required
+                 max={new Date().toISOString().slice(0, 16)} // Sets max to today's date
             />
           </div>
 

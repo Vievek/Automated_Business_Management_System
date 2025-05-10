@@ -159,6 +159,7 @@ Input:`;
               type="date"
               value={formData.startDate}
               onChange={handleChange}
+                max={new Date().toISOString().split('T')[0]} // Sets max to today's date
               required
             />
           </div>
