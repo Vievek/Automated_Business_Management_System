@@ -85,10 +85,10 @@ function ProjectNotesPage({ params }) {
     // Project Details
     addRow("Project Name", project.name);
     addRow("Description", project.description);
-    // addRow(
-    //   "Start Date",
-    //   project.startDate ? format(new Date(project.startDate), "PPP") : "N/A"
-    // );
+    addRow(
+      "Start Date",
+      project.startDate ? format(new Date(project.startDate), "PPP") : "N/A"
+    );
     // addRow(
     //   "End Date",
     //   project.endDate ? format(new Date(project.endDate), "PPP") : "N/A"
@@ -504,6 +504,13 @@ function ProjectNotesPage({ params }) {
             </h1>
             <p className="text-muted-foreground mb-2">
               {project?.description || "Loading project details..."}
+            </p>
+
+            <p className="text-sm text-muted-foreground">
+              Start Date:{" "}
+              {project?.startDate
+                ? format(new Date(project.startDate), "PPP")
+                : "No start date"}
             </p>
           </div>
           <div className="flex items-center gap-4 ">

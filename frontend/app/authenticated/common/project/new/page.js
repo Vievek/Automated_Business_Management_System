@@ -20,6 +20,7 @@ function NewProjectPage() {
   const [formData, setFormData] = useState({
     name: "",
     description: "",
+    startDate: "",
   });
 
   useEffect(() => {
@@ -146,6 +147,19 @@ Input:`;
               onChange={handleChange}
               required
               rows={5}
+            />
+          </div>
+          <div>
+            <Label htmlFor="startDate" className="mb-3">
+              Start Date
+            </Label>
+            <Input
+              id="startDate"
+              name="startDate"
+              type="date"
+              value={formData.startDate}
+              onChange={handleChange}
+              required
             />
           </div>
           <div>

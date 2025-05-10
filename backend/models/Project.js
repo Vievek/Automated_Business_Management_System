@@ -4,6 +4,7 @@ const projectSchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
     description: { type: String },
+    startDate: { type: Date, required: true },
     members: [
       {
         type: mongoose.Schema.Types.ObjectId,

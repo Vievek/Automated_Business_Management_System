@@ -29,6 +29,7 @@ function EditProjectPage() {
   const [formData, setFormData] = useState({
     name: "",
     description: "",
+    startDate: "",
   });
   const [projectMembers, setProjectMembers] = useState([]);
 
@@ -45,6 +46,9 @@ function EditProjectPage() {
         setFormData({
           name: projectRes.name,
           description: projectRes.description || "",
+          startDate: projectRes.startDate
+            ? new Date(projectRes.startDate).toISOString().split("T")[0]
+            : "",
         });
         setProjectMembers(projectRes.members || []);
         setUsers(usersRes.filter((u) => u._id !== user?._id)); // Exclude current user
@@ -165,7 +169,9 @@ function EditProjectPage() {
           <h2 className="text-xl font-semibold">Project Information</h2>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <Label htmlFor="name">Project Name</Label>
+              <Label htmlFor="name" className={"mb-2"}>
+                Project Name
+              </Label>
               <Input
                 id="name"
                 name="name"
@@ -177,13 +183,29 @@ function EditProjectPage() {
             </div>
 
             <div>
-              <Label htmlFor="description">Description</Label>
+              <Label htmlFor="description" className={"mb-2"}>
+                Description
+              </Label>
               <Textarea
                 id="description"
                 name="description"
                 value={formData.description}
                 onChange={handleChange}
                 rows={5}
+                disabled={loading}
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="startDate" className={"mb-2"}>
+                Start Date
+              </Label>
+              <Input
+                id="startDate"
+                name="startDate"
+                type="date"
+                value={formData.startDate}
+                onChange={handleChange}
                 disabled={loading}
               />
             </div>
