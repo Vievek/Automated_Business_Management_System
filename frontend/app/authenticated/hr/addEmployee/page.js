@@ -37,6 +37,7 @@ function AddEmployeePage() {
     nicNo: "",
     currentStatus: "on bench",
     role: "",
+    dateOfBirth: "",
   });
   const [loading, setLoading] = React.useState(false);
   const [errors, setErrors] = React.useState({
@@ -284,6 +285,19 @@ function AddEmployeePage() {
               </div>
 
               <div className="flex flex-col space-y-1.5">
+                <Label htmlFor="dateOfBirth">Date of Birth *</Label>
+                <Input
+                  id="dateOfBirth"
+                  name="dateOfBirth"
+                  type="date"
+                  placeholder="Enter date of birth"
+                  value={formData.dateOfBirth}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+
+              <div className="flex flex-col space-y-1.5">
                 <Label htmlFor="currentStatus">Current Status</Label>
                 <Select
                   value={formData.currentStatus}
@@ -298,9 +312,7 @@ function AddEmployeePage() {
                     <SelectItem value="working on project">
                       Working on project
                     </SelectItem>
-                    <SelectItem value="No work">
-                      Working on project
-                    </SelectItem>
+                    <SelectItem value="No work">Working on project</SelectItem>
                     <SelectItem value="on bench">On bench</SelectItem>
                     <SelectItem value="chief">Chief</SelectItem>
                   </SelectContent>

@@ -243,6 +243,7 @@ function HRDashboardPage() {
                 <TableHead>Status</TableHead>
                 <TableHead>Experience</TableHead>
                 <TableHead>Salary</TableHead>
+                <TableHead>date of birth</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -289,6 +290,9 @@ function HRDashboardPage() {
                     </TableCell>
                     <TableCell>{user.yearsOfExperience} years</TableCell>
                     <TableCell>${user.salary.toLocaleString()}</TableCell>
+                    <TableCell>
+                      {new Date(user.dateOfBirth).toLocaleDateString()}
+                    </TableCell>
                     <TableCell className={"flex space-x-2"}>
                       <Button
                         variant="outline"

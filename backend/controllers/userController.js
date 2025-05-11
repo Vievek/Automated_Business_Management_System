@@ -18,6 +18,7 @@ exports.register = async (req, res) => {
     nicNo,
     currentStatus,
     role,
+    dateOfBirth,
   } = req.body;
 
   try {
@@ -34,6 +35,7 @@ exports.register = async (req, res) => {
       nicNo,
       currentStatus,
       role,
+      dateOfBirth,
     });
     await user.save();
     res.status(201).json({ message: "User registered successfully" });
